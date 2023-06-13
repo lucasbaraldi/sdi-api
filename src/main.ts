@@ -7,10 +7,7 @@ import * as fs from 'fs'
 config({
   path: '.env'
 })
-const corsOptions = {
-  origin: '*',
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
+
 const httpsOptions = {
   key: fs.readFileSync('./certificate/key.pem'),
   cert: fs.readFileSync('./certificate/cert.pem'),
