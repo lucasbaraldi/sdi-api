@@ -1,58 +1,49 @@
-import { Injectable } from '@nestjs/common';
-import { buscaParametro } from 'src/commons';
+import { Injectable } from '@nestjs/common'
+import { buscaUsuario } from 'src/commons'
 
-import { FirebirdClient } from 'src/firebird/firebird.client';
-
-
+import { FirebirdClient } from 'src/firebird/firebird.client'
+import * as jwt from 'jsonwebtoken'
 
 @Injectable()
 export class AuthService {
   constructor(private readonly firebirdClient: FirebirdClient) {}
 
-//   export async function buscaUsuario(nomeUsuario: any, resolve: any, reject: any) {
-    
-//     const result = await firebirdClient.runQuery({
-        
-//         query: `SELECT * FROM ACESSO WHERE USUARIO_APP=?`,
-//         params: [nomeUsuario],
-//     });
+  async login(body: any): Promise<any> {
+    console.log('Body: ', body)
+    try {
+      const result = await buscaUsuario(this.firebirdClient, body.user)
 
-//     return new Promise((resolve, reject) => {
-//         result[0]['VALOR_PARAM'](function (err: any, name: any, eventEmitter: any) {
-//             if (err) throw err;
+      console.log(result)
 
-//             const buffers = []
-//             eventEmitter.on('data', function (chunk: any) {
-//                 buffers.push(chunk)
-//             })
-//             eventEmitter.once('end', function () {
-//                 const buffer = Buffer.concat(buffers)
-//                 resolve(buffer.toString())
-//             })
-//         })
-//     })
-    
-    
-    
-//     client.attach(options, (err, db) => {
-//       if (err) throw err
-//       db.query(
-//         'SELECT * FROM ACESSO WHERE USUARIO_APP=?',
-//         [nomeUsuario],
-//         function (err, result) {
-//           if (err) throw err
-  
-//           if (result[0] && result[0]['SENHA_APP'] === null) {
-//             reject({ message: 'Usuário sem senha cadastrada!' })
-//           } else if (result[0] && result[0]['USUARIO_APP']) {
-//             resolve(result[0])
-//           } else {
-//             reject({ message: 'Usuário inválido!' })
-//           }
-  
-//           db.detach()
-//         }
-//       )
-//     })
-//  }
+      if (
+        body.user === result['USUARIO_APP'] &&
+        body.password === result['SENHA']
+      ) {
+        const token = jwt.sign(
+          {
+            id: result['COD_USUARIO'],
+            nome: result['USUARIO_APP']
+          },
+          process.env.SECRET,
+          {
+            expiresIn: 6000
+          }
+        )
+
+        return {
+          auth: true,
+          token: token,
+          cod_empresa: result['COD_EMPRESA']
+        }
+      }
+
+      return {
+        message: 'Senha inválida!'
+      }
+    } catch (err) {
+      return {
+        message: err.message
+      }
+    }
+  }
 }

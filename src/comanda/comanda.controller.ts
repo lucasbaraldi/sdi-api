@@ -14,7 +14,27 @@ export class ComandaController {
     return this.comandaService.itensComanda(nro_controle)
   }
 
-  @Post('/comandas/')
+  @Get('/comandas/:nro_controle')
+  getComandas(@Param('nro_controle') nro_controle: number) {
+    return this.comandaService.getComandas(nro_controle)
+  }
+
+  @Get('/cardapio')
+  cardapio() {
+    return this.comandaService.cardapio()
+  }
+
+  @Get('/finalizacao')
+  finalizacao() {
+    return this.comandaService.finalizacao()
+  }
+
+  @Get('/barSegmentos')
+  segmentos() {
+    return this.comandaService.barSegmentos()
+  }
+
+  @Post('/comandas')
   comandas(@Body() body: any) {
     return this.comandaService.comandas(body)
   }

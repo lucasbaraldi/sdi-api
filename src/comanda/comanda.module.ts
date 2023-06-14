@@ -1,13 +1,13 @@
-import { Module } from '@nestjs/common';
+import { Module } from '@nestjs/common'
 
-import { ComandaController } from './comanda.controller';
-import { ComandaService } from './comanda.service';
+import { ComandaController } from './comanda.controller'
+import { ComandaService } from './comanda.service'
 
-import { FirebirdClient } from 'src/firebird/firebird.client';
+import { FirebirdClient } from 'src/firebird/firebird.client'
 
 @Module({
   imports: [],
   controllers: [ComandaController],
-  providers: [ComandaService, FirebirdClient],
+  providers: [ComandaService, FirebirdClient]
 })
 export class ComandaModule {}

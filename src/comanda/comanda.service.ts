@@ -47,6 +47,64 @@ export class ComandaService {
       params: []
     })
   }
+  getComandas(nro_controle: any): any {
+    return this.firebirdClient.runQuery({
+      query: `
+      SELECT RM.*, 
+            BRM.NRO_CONTROLE, 
+            BRM.TIPO_ORIGEM, 
+            BRM.VLR_DELIVERY, 
+            BRM.PELO_SITE, 
+            CL.NOME AS NOME_DO_CLIENTE 
+        FROM ROMANEIOS RM 
+        INNER JOIN BAR_ROMANEIO BRM ON (RM.COD_EMPRESA = BRM.COD_EMPRESA 
+                AND RM.TIPO_CONTROL = BRM.TIPO_CONTROL 
+                AND RM.NRO_ROMANEIO = BRM.NRO_ROMANEIO) 
+        INNER JOIN CLIENTES CL ON (RM.COD_CLIENTE = CL.COD_CLIENTE) 
+        WHERE RM.COD_EMPRESA = 1 AND 
+         RM.SITUACAO = 'A' AND 
+         RM.TIPO_CONTROL = 'Q' AND
+         BRM.NRO_CONTROLE = ${nro_controle} 
+      `,
+      params: []
+    })
+  }
+
+  cardapio(): any {
+    return this.firebirdClient.runQuery({
+      query: `
+      SELECT * from BAR_CARDAPIO
+      `,
+      params: []
+    })
+  }
+  finalizacao(): any {
+    return this.firebirdClient.runQuery({
+      query: `
+      SELECT * from BAR_FINALIZACAO
+      `,
+      params: []
+    })
+  }
+  barSegmentos(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.firebirdClient.runQuery({
+        query: `
+        SELECT * from BAR_SEGMENTO`,
+        params: [],
+        buffer: (result: any, err: any) => {
+          if (err) {
+            reject(err)
+          } else {
+            result.forEach(r => {
+              r.TIPO = r.TIPO.trim()
+            })
+            resolve(result)
+          }
+        }
+      })
+    })
+  }
 
   async comandas(body: any) {
     var cliente

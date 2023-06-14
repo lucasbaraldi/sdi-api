@@ -1,6 +1,6 @@
 import { FirebirdClient } from 'src/firebird/firebird.client'
 
-const Firebird = require('node-firebird')
+import * as Firebird from 'node-firebird'
 
 export async function buscaParametro(
   firebirdClient: FirebirdClient,
@@ -31,4 +31,25 @@ export async function buscaParametro(
   })
 
   return result
+}
+export async function buscaUsuario(
+  firebirdClient: FirebirdClient,
+  nomeUsuario: string
+): Promise<any> {
+  return new Promise((resolve, reject) => {
+    firebirdClient.runQuery({
+      query: 'SELECT * FROM ACESSO WHERE USUARIO_APP=?',
+      params: [nomeUsuario],
+      buffer: (result: any) => {
+        console.log('result: ', result)
+        if (result[0] && result[0]['SENHA_APP'] === null) {
+          reject(new Error('Usuário sem senha cadastrada!'))
+        } else if (result[0] && result[0]['USUARIO_APP']) {
+          resolve(result[0])
+        } else {
+          reject(new Error('Usuário inválido!'))
+        }
+      }
+    })
+  })
 }

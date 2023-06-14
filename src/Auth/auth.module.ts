@@ -1,13 +1,13 @@
-import { Module } from '@nestjs/common';
+import { Module } from '@nestjs/common'
 
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller'
+import { AuthService } from './auth.service'
 
-import { FirebirdClient } from 'src/firebird/firebird.client';
+import { FirebirdClient } from 'src/firebird/firebird.client'
 
 @Module({
   imports: [],
   controllers: [AuthController],
-  providers: [AuthService, FirebirdClient],
+  providers: [AuthService, FirebirdClient]
 })
 export class AuthModule {}

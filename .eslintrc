@@ -27,6 +27,7 @@
 
     "no-var": "warn",
     "prefer-const": "warn",
+    "no-useless-catch": "warn",
     "prettier/prettier": "error",
     "no-unused-vars": "warn",
     "no-use-before-define": "warn",
