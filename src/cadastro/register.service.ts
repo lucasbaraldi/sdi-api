@@ -68,7 +68,7 @@ export class RegisterService {
         result => res(result)
       )
     })
-    console.log('separaClientes: ', separaClientes)
+
     if (separaClientes == 'N') {
       return this.firebirdClient.runQuery({
         query: `

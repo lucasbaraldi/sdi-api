@@ -41,7 +41,7 @@ export async function buscaUsuario(
       query: 'SELECT * FROM ACESSO WHERE USUARIO_APP=?',
       params: [nomeUsuario],
       buffer: (result: any) => {
-        console.log('result: ', result)
+        // console.log('result: ', result)
         if (result[0] && result[0]['SENHA_APP'] === null) {
           reject(new Error('Usuário sem senha cadastrada!'))
         } else if (result[0] && result[0]['USUARIO_APP']) {
