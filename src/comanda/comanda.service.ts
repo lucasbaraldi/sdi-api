@@ -105,6 +105,56 @@ export class ComandaService {
       })
     })
   }
+  barGrupos(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.firebirdClient.runQuery({
+        query: `
+        SELECT TB1.TIPO, 
+          TB1.COD_SECAO, 
+          TB1.COD_GRUPO, 
+          MAX(TB1.DESCRICAO)  AS DESCR_GRUPO 
+        FROM 
+        ( 
+          SELECT BSG.TIPO, 
+            PD.COD_SECAO, 
+            PD.COD_GRUPO, 
+            GP.DESCRICAO 
+          FROM PRODUTOS PD 
+          INNER JOIN BAR_PRODUTOS BPD ON (PD.COD_PRODUTO = BPD.COD_PRODUTO) 
+          INNER JOIN BAR_SEGMENTO BSG ON (BPD.COD_SEGMENTO = BSG.COD_SEGMENTO) 
+          INNER JOIN GRUPOS_PRODUTOS GP ON (PD.COD_SECAO = GP.COD_SECAO 
+                   AND PD.COD_GRUPO = GP.COD_GRUPO) 
+          WHERE PD.TIPO_PROD = 'A' 
+            AND (BPD.TIPO_ORIGEM = 'A' OR BPD.TIPO_ORIGEM = 'L' ) 
+
+          UNION 
+        
+          SELECT BSG.TIPO, 
+            99 AS COD_SECAO, 
+            SV.COD_GRUPO, 
+            GP.DESCRICAO 
+          FROM SERVICOS SV 
+          INNER JOIN BAR_SEGMENTO BSG ON (SV.BAR_COD_SEGMENTO = BSG.COD_SEGMENTO) 
+          INNER JOIN GRUPOS_SERVICOS GP ON (SV.COD_GRUPO = GP.COD_GRUPO) 
+          WHERE SV.TIPO_SERV = 'A' 
+        ) TB1 
+        GROUP BY TB1.TIPO, TB1.COD_SECAO, TB1.COD_GRUPO 
+        `,
+        params: [],
+        buffer: (result: any, err: any) => {
+          if (err) {
+            reject(err)
+          } else {
+            result.forEach(r => {
+              r.TIPO = r.TIPO.trim()
+            })
+            console.log('Grupos Atualizados com sucesso')
+            resolve(result)
+          }
+        }
+      })
+    })
+  }
 
   async comandas(body: any) {
     var cliente

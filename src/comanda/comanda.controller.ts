@@ -9,6 +9,7 @@ export class ComandaController {
   clienteComanda(@Param('nro_controle') nro_controle: number) {
     return this.comandaService.clienteComanda(nro_controle)
   }
+
   @Get('/itensComanda/:nro_controle')
   itensComanda(@Param('nro_controle') nro_controle: number) {
     return this.comandaService.itensComanda(nro_controle)
@@ -30,8 +31,13 @@ export class ComandaController {
   }
 
   @Get('/barSegmentos')
-  segmentos() {
+  barSegmentos() {
     return this.comandaService.barSegmentos()
+  }
+
+  @Get('/barGrupos')
+  barGrupos() {
+    return this.comandaService.barGrupos()
   }
 
   @Post('/comandas')

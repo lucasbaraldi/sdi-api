@@ -16,4 +16,9 @@ export class EstoqueController {
   saldoProduto(@Param('cod_produto') cod_produto: number) {
     return this.estoqueService.saldoProduto(cod_produto)
   }
+  @Post('/estoque')
+  @UseGuards(AuthGuard)
+  movtoEstoque(@Body() body: any) {
+    return this.estoqueService.movtoEstoque(body)
+  }
 }
