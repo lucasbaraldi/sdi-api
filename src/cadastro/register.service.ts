@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { resolve } from 'path'
 import { buscaParametro } from 'src/commons'
 
 import { FirebirdClient } from 'src/firebird/firebird.client'
@@ -238,6 +239,70 @@ export class RegisterService {
         }
       })
     })
+  }
+
+  async precoVenda(body: any): Promise<any> {
+    let date_ob = new Date()
+    let date = ('0' + date_ob.getDate()).slice(-2)
+    let month = ('0' + (date_ob.getMonth() + 1)).slice(-2)
+    let year = date_ob.getFullYear()
+
+    const dataAtual = month + '/' + date + '/' + year
+
+    const { cod_produto, cod_emresa, seq_tabela, cod_usuario, preco_venda } =
+      body
+
+    const result = await new Promise((resolve, reject) => {
+      return this.firebirdClient.runQuery({
+        query: `
+        UPDATE TABELA_PRECOS
+        SET PRECO_VENDA = ${preco_venda}, DT_ALT_PRECO = '${dataAtual}'
+        WHERE COD_PRODUTO = ${cod_produto} AND
+        SEQ_TABELA = ${seq_tabela}
+    `,
+        params: [],
+        buffer: (result: any, err: any) => {
+          if (err) {
+            reject(err)
+          } else {
+            console.log(
+              'Tabela ' +
+                seq_tabela +
+                ' do produto ' +
+                cod_produto +
+                ' atualizado com sucesso!'
+            )
+            resolve(true)
+          }
+        }
+      })
+    })
+    if (result == true) {
+      return new Promise((resolve, reject) => {
+        this.firebirdClient.runQuery({
+          query: `
+          select preco_venda from tabela_precos 
+            where cod_produto = ${cod_produto} 
+              and seq_tabela = ${seq_tabela} 
+          `,
+          params: [],
+          buffer: (result: any, err: any) => {
+            if (err) {
+              reject(err)
+            } else {
+              result.forEach(r => {
+                r.PRECO_VENDA = parseFloat(r.PRECO_VENDA).toFixed(2)
+              })
+              resolve(result[0])
+            }
+          }
+        })
+      })
+    } else {
+      return {
+        message: `Não foi possivel atualizar o preço de venda do produto`
+      }
+    }
   }
 
   empresas(): Promise<any> {

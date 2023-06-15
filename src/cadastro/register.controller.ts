@@ -58,4 +58,9 @@ export class RegisterController {
   empresa(@Param('cod_empresa') cod_empresa: number) {
     return this.registerService.empresa(cod_empresa)
   }
+  @Post('/precoVenda')
+  @UseGuards(AuthGuard)
+  precoVenda(@Body() body: any) {
+    return this.registerService.precoVenda(body)
+  }
 }
