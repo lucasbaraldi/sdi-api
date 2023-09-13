@@ -58,7 +58,10 @@ export class AuthService {
           auth: true,
           accessToken: accessToken,
           refreshToken: refreshToken,
-          cod_empresa: result['COD_EMPRESA']
+          cod_empresa: result['COD_EMPRESA'],
+          id: result['COD_USUARIO'],
+          user: result['USUARIO_APP'],
+          password: result['SENHA']
         }
       }
 

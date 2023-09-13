@@ -1,13 +1,18 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common'
 import { ComandaService } from './comanda.service'
 
-@Controller()
+@Controller('comanda')
 export class ComandaController {
   constructor(private readonly comandaService: ComandaService) {}
 
   @Get('/clienteComanda/:nro_controle')
   clienteComanda(@Param('nro_controle') nro_controle: number) {
     return this.comandaService.clienteComanda(nro_controle)
+  }
+
+  @Get('/allClientsByCodEmpresa/:cod_empresa')
+  clientes(@Param('cod_empresa') cod_empresa: number) {
+    return this.comandaService.clientes(cod_empresa)
   }
 
   @Get('/itensComanda/:nro_controle')
@@ -38,6 +43,11 @@ export class ComandaController {
   @Get('/barGrupos')
   barGrupos() {
     return this.comandaService.barGrupos()
+  }
+
+  @Get('/produtos')
+  produtos() {
+    return this.comandaService.produtos()
   }
 
   @Post('/comandas')

@@ -47,6 +47,46 @@ export class ComandaService {
       params: []
     })
   }
+  async clientes(cod_empresa: number): Promise<any> {
+    const separaClientes = await new Promise((res, rej) => {
+      buscaParametro(
+        this.firebirdClient,
+        'GER_SEPARAR_PESSOAS_EMPRESA',
+        result => res(result)
+      )
+    })
+
+    if (separaClientes == 'N') {
+      return this.firebirdClient.runQuery({
+        query: `
+        SELECT 
+        COD_CLIENTE, 
+        NOME,
+        (CASE WHEN CELULAR IS NOT NULL AND CELULAR > ' ' THEN CELULAR ELSE 'SEM CELULAR' END) AS CELULAR, 
+        (CASE WHEN FONE  IS NOT NULL AND FONE > ' ' THEN FONE 
+        WHEN FAX IS NOT NULL AND FAX > ' ' THEN FAX 
+        ELSE 'SEM TELEFONE' END) AS FONE 
+        FROM CLIENTES WHERE TIPO_CLI = 'A'
+      `,
+        params: []
+      })
+    } else {
+      return this.firebirdClient.runQuery({
+        query: `
+        SELECT 
+        COD_CLIENTE, 
+        NOME,
+        (CASE WHEN CELULAR IS NOT NULL AND CELULAR > ' ' THEN CELULAR ELSE 'SEM CELULAR' END) AS CELULAR, 
+        (CASE WHEN FONE  IS NOT NULL AND FONE > ' ' THEN FONE 
+        WHEN FAX IS NOT NULL AND FAX > ' ' THEN FAX 
+        ELSE 'SEM TELEFONE' END) AS FONE 
+        FROM CLIENTES WHERE TIPO_CLI = 'A' AND COD_EMPRESA = ${cod_empresa}
+        
+      `,
+        params: []
+      })
+    }
+  }
   getComandas(nro_controle: any): any {
     return this.firebirdClient.runQuery({
       query: `
@@ -157,8 +197,8 @@ export class ComandaService {
   }
 
   async comandas(body: any) {
-    var cliente
-    let obsDescricao = await new Promise((res, rej) => {
+    let cliente
+    const obsDescricao = await new Promise((res, rej) => {
       buscaParametro(
         this.firebirdClient,
         'BAR_PEDIDO_ITEM_OBS_NA_DESCRICAO',
@@ -167,14 +207,14 @@ export class ComandaService {
     })
     console.log('obsDescricao: ', obsDescricao)
 
-    let codigoConsumidorFinal = await new Promise((res, rej) => {
+    const codigoConsumidorFinal = await new Promise((res, rej) => {
       buscaParametro(this.firebirdClient, 'CONSUMIDORFINAL', result => {
         res(result)
       })
     })
     console.log('codigoConsumidorFinal: ', codigoConsumidorFinal)
 
-    var observacaoGeral, observacaoItem
+    let observacaoGeral, observacaoItem
 
     const {
       dt_emissao,
@@ -317,5 +357,57 @@ export class ComandaService {
     return {
       message: `Comanda ${result.ID} adicionada com sucesso`
     }
+  }
+
+  produtos(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.firebirdClient.runQuery({
+        query: `
+        SELECT 'P' AS TIPO_ITEM,
+          PD.COD_PRODUTO AS COD_ITEM,
+          PD.COD_BARRAS,
+          PD.DESCRICAO,
+          CAST(PD.PRECO_VENDA AS DOUBLE PRECISION) AS PRECO_VENDA,
+          PD.COD_SECAO,
+          PD.COD_GRUPO,
+          PDB.COD_SEGMENTO,
+          PDB.QTD_SABORES,
+          SGB.TIPO AS TIPO_SEGMENTO
+        FROM PRODUTOS PD
+        INNER JOIN BAR_PRODUTOS PDB ON (PD.COD_PRODUTO = PDB.COD_PRODUTO)
+        INNER JOIN BAR_SEGMENTO SGB ON (PDB.COD_SEGMENTO = SGB.COD_SEGMENTO)
+        WHERE PD.TIPO_PROD = 'A'
+        AND (PDB.TIPO_ORIGEM = 'A' OR PDB.TIPO_ORIGEM = 'L')
+
+        UNION
+
+        SELECT 'S' AS TIPO_ITEM,
+          SV.COD_SERVICO AS COD_ITEM,
+          0 AS COD_BARRAS,
+          SV.BAR_DESCR_SERV AS DESCRICAO,
+          SV.VALOR AS PRECO_VENDA,
+          99 AS COD_SECAO,
+          SV.COD_GRUPO,
+          SV.BAR_COD_SEGMENTO AS COD_SEGMENTO,
+          0 AS QTD_SABORES,
+          SGB.TIPO AS TIPO_SEGMENTO
+        FROM SERVICOS SV
+        INNER JOIN BAR_SEGMENTO SGB ON (SV.BAR_COD_SEGMENTO = SGB.COD_SEGMENTO)
+        WHERE SV.TIPO_SERV = 'A'`,
+        params: [],
+        buffer: (result: any, err: any) => {
+          if (err) {
+            reject(err)
+          } else {
+            result.forEach((r: any) => {
+              r.PRECO_VENDA = parseFloat(r.PRECO_VENDA).toFixed(2)
+              r.TIPO_ITEM = r.TIPO_ITEM.trim()
+              r.TIPO_SEGMENTO = r.TIPO_SEGMENTO.trim()
+            })
+            resolve(result)
+          }
+        }
+      })
+    })
   }
 }
