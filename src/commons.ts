@@ -1,6 +1,7 @@
 import { FirebirdClient } from 'src/firebird/firebird.client'
 
 import * as Firebird from 'node-firebird'
+import { BadRequestException, NotFoundException } from '@nestjs/common'
 
 export async function buscaParametro(
   firebirdClient: FirebirdClient,
@@ -32,6 +33,7 @@ export async function buscaParametro(
 
   return result
 }
+
 export async function buscaUsuario(
   firebirdClient: FirebirdClient,
   nomeUsuario: string
@@ -41,13 +43,30 @@ export async function buscaUsuario(
       query: 'SELECT * FROM ACESSO WHERE USUARIO_APP=?',
       params: [nomeUsuario],
       buffer: (result: any) => {
-        // console.log('result: ', result)
-        if (result[0] && result[0]['SENHA_APP'] === null) {
-          reject(new Error('Usuário sem senha cadastrada!'))
-        } else if (result[0] && result[0]['USUARIO_APP']) {
-          resolve(result[0])
+        if (result.length === 0) {
+          reject(new NotFoundException('Usuário não encontrado!'))
+        } else if (result[0]['SENHA_APP'] === null) {
+          reject(new BadRequestException('Usuário sem senha cadastrada!'))
         } else {
-          reject(new Error('Usuário inválido!'))
+          resolve(result[0])
+        }
+      }
+    })
+  })
+}
+
+export async function buscaCodSistema(
+  firebirdClient: FirebirdClient
+): Promise<any> {
+  return new Promise((resolve, reject) => {
+    firebirdClient.runQuery({
+      query: 'SELECT FIRST 1 COD_SISTEMA FROM config',
+      params: [],
+      buffer: (result: any) => {
+        if (result[0] && result[0]['COD_SISTEMA']) {
+          resolve(result[0]['COD_SISTEMA'])
+        } else {
+          reject(new Error('Nenhum registro encontrado na tabela config!'))
         }
       }
     })

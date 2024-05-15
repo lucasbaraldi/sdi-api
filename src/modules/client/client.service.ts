@@ -55,6 +55,7 @@ export class ClientService {
       })
     })
   }
+
   async getOneClient(cod_empresa: number, cod_cliente: number) {
     const separaClientes = await new Promise((res, rej) => {
       buscaParametro(
