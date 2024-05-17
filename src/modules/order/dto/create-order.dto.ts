@@ -13,6 +13,11 @@ export class CreateOrderDto {
   @IsInt()
   @IsNotEmpty()
   @ApiProperty({ required: true })
+  cod_empresa: number // Adicionando o campo cod_empresa
+
+  @IsInt()
+  @IsNotEmpty()
+  @ApiProperty({ required: true })
   id_cliente: number
 
   @IsDateString()
@@ -29,6 +34,11 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @ApiProperty({ required: true })
   cod_banco: number
+
+  @IsInt()
+  @IsNotEmpty()
+  @ApiProperty({ required: true })
+  cod_forma_pgto: number
 
   @IsNumber()
   @IsNotEmpty()

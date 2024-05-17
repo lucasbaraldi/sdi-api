@@ -1,5 +1,8 @@
+import { OrderItem } from './order-item.entity'
+
 export class Order {
   id: number
+  cod_empresa: number
   dtEmissao: Date
   idCliente: number
   codTransp?: number
@@ -11,9 +14,7 @@ export class Order {
   tipoFrete?: string
   obs?: string
   status: string
-  email?: string
   codVendedor: number
   nroControle?: number
-  hrEmissao?: string
-  nroTablet?: number
+  itens?: OrderItem[]
 }
