@@ -16,10 +16,6 @@ export class AuthController {
     @Body('refreshToken') refreshToken: string,
     @Res() res: Response
   ): Promise<any> {
-    const newAccessToken = await this.authService.refreshToken(
-      refreshToken,
-      res
-    )
-    return { accessToken: newAccessToken }
+    return this.authService.refreshToken(refreshToken, res)
   }
 }

@@ -5,7 +5,12 @@ import {
   Res,
   UnauthorizedException
 } from '@nestjs/common'
-import { buscaCodSistema, buscaUsuario } from 'src/commons'
+import {
+  buscaCodSistema,
+  buscaUsuario,
+  buscaVendedor,
+  buscaUsuarioPorCodUsuario
+} from 'src/commons'
 import { FirebirdClient } from 'src/firebird/firebird.client'
 import * as jwt from 'jsonwebtoken'
 import * as dotenv from 'dotenv'
@@ -27,24 +32,28 @@ export class AuthService {
     this.accessTokenDuration = parseInt(process.env.ACCESS_TOKEN_DURATION)
     this.refreshTokenDuration = parseInt(process.env.REFRESH_TOKEN_DURATION)
   }
-  async login(body: any, @Res() res: Response): Promise<any> {
-    console.log('Body: ', body)
-    try {
-      const result = await buscaUsuario(this.firebirdClient, body.user)
 
-      if (!result) {
-        throw new NotFoundException('Usuário não encontrado')
+  async login(body: any, @Res() res: Response): Promise<any> {
+    try {
+      const vendedor = await buscaVendedor(this.firebirdClient, body.user)
+      if (!vendedor) {
+        throw new NotFoundException('Usuário não encontrado ou inativo')
       }
 
-      if (body.password !== result['SENHA']) {
+      if (body.password !== vendedor['SENHA_APP']) {
         throw new BadRequestException('Senha inválida!')
       }
+
+      const usuario = await buscaUsuarioPorCodUsuario(
+        this.firebirdClient,
+        vendedor['COD_USUARIO']
+      )
 
       const codSistema = await buscaCodSistema(this.firebirdClient)
       const accessToken = jwt.sign(
         {
-          id: result['COD_USUARIO'],
-          nome: result['USUARIO_APP']
+          id: vendedor['COD_VENDEDOR'],
+          nome: vendedor['USUARIO_APP']
         },
         process.env.SECRET,
         {
@@ -54,8 +63,8 @@ export class AuthService {
 
       const refreshToken = jwt.sign(
         {
-          id: result['COD_USUARIO'],
-          nome: result['USUARIO_APP']
+          id: vendedor['COD_VENDEDOR'],
+          nome: vendedor['USUARIO_APP']
         },
         process.env.SECRET,
         {
@@ -67,11 +76,21 @@ export class AuthService {
         auth: true,
         accessToken: accessToken,
         refreshToken: refreshToken,
-        cod_empresa: result['COD_EMPRESA'],
-        id: result['COD_USUARIO'],
-        user: result['USUARIO_APP'],
-        password: result['SENHA'],
-        codSistema: codSistema
+        cod_empresa: vendedor['COD_EMPRESA'],
+        codSistema: codSistema,
+        user: {
+          COD_USUARIO: usuario['COD_USUARIO'],
+          COD_EMPRESA: usuario['COD_EMPRESA'],
+          USUARIO: usuario['USUARIO'],
+          MULTI_EMPRESA: usuario['MULTI_EMPRESA'].trim()
+        },
+        vendedor: {
+          COD_VENDEDOR: vendedor['COD_VENDEDOR'],
+          NOME: vendedor['NOME'],
+          COD_BANCO: vendedor['COD_BANCO'],
+          TELEFONE: vendedor['TELEFONE'],
+          COD_EMPRESA: vendedor['COD_EMPRESA']
+        }
       })
     } catch (err) {
       if (
@@ -94,12 +113,17 @@ export class AuthService {
         process.env.SECRET
       ) as JwtPayload
 
-      const user = await buscaUsuario(this.firebirdClient, decoded.nome)
+      const vendedor = await buscaVendedor(this.firebirdClient, decoded.nome)
+
+      const usuario = await buscaUsuarioPorCodUsuario(
+        this.firebirdClient,
+        vendedor['COD_USUARIO']
+      )
 
       const newAccessToken = jwt.sign(
         {
-          id: user['COD_USUARIO'],
-          nome: user['USUARIO_APP']
+          id: vendedor['COD_VENDEDOR'],
+          nome: vendedor['USUARIO_APP']
         },
         process.env.SECRET,
         {
@@ -109,8 +133,8 @@ export class AuthService {
 
       const newRefreshToken = jwt.sign(
         {
-          id: user['COD_USUARIO'],
-          nome: user['USUARIO_APP']
+          id: vendedor['COD_VENDEDOR'],
+          nome: vendedor['USUARIO_APP']
         },
         process.env.SECRET,
         {
@@ -124,11 +148,21 @@ export class AuthService {
         auth: true,
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
-        cod_empresa: user['COD_EMPRESA'],
-        id: user['COD_USUARIO'],
-        user: user['USUARIO_APP'],
-        password: user['SENHA'],
-        codSistema: codSistema
+        cod_empresa: vendedor['COD_EMPRESA'],
+        codSistema: codSistema,
+        user: {
+          COD_USUARIO: usuario['COD_USUARIO'],
+          COD_EMPRESA: usuario['COD_EMPRESA'],
+          USUARIO: usuario['USUARIO'],
+          MULTI_EMPRESA: usuario['MULTI_EMPRESA']
+        },
+        vendedor: {
+          COD_VENDEDOR: vendedor['COD_VENDEDOR'],
+          NOME: vendedor['NOME'],
+          COD_BANCO: vendedor['COD_BANCO'],
+          TELEFONE: vendedor['TELEFONE'],
+          COD_EMPRESA: vendedor['COD_EMPRESA']
+        }
       })
     } catch (err) {
       console.log('erro no refresh-token')

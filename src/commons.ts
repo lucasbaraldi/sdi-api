@@ -54,6 +54,28 @@ export async function buscaUsuario(
     })
   })
 }
+export async function buscaUsuarioPorCodUsuario(
+  firebirdClient: FirebirdClient,
+  codUsuario: number
+): Promise<any> {
+  return new Promise((resolve, reject) => {
+    firebirdClient.runQuery({
+      query: `
+        SELECT COD_USUARIO, COD_EMPRESA, USUARIO, MULTI_EMPRESA, ATIVO 
+        FROM ACESSO 
+        WHERE COD_USUARIO = ? AND ATIVO = 'S'
+      `,
+      params: [codUsuario],
+      buffer: (result: any) => {
+        if (result.length === 0) {
+          reject(new NotFoundException('Usuário não encontrado ou inativo!'))
+        } else {
+          resolve(result[0])
+        }
+      }
+    })
+  })
+}
 
 export async function buscaCodSistema(
   firebirdClient: FirebirdClient
@@ -67,6 +89,29 @@ export async function buscaCodSistema(
           resolve(result[0]['COD_SISTEMA'])
         } else {
           reject(new Error('Nenhum registro encontrado na tabela config!'))
+        }
+      }
+    })
+  })
+}
+
+export async function buscaVendedor(
+  firebirdClient: FirebirdClient,
+  nomeUsuarioApp: string
+): Promise<any> {
+  return new Promise((resolve, reject) => {
+    firebirdClient.runQuery({
+      query: `
+        SELECT COD_VENDEDOR, NOME, COD_BANCO, TELEFONE, COD_EMPRESA, SENHA_APP, USUARIO_APP, COD_USUARIO
+        FROM VENDEDORES 
+        WHERE UPPER(USUARIO_APP) = ? AND ATIVO = 'S'
+      `,
+      params: [nomeUsuarioApp.toUpperCase()],
+      buffer: (result: any) => {
+        if (result.length === 0) {
+          reject(new NotFoundException('Vendedor não encontrado ou inativo!'))
+        } else {
+          resolve(result[0])
         }
       }
     })

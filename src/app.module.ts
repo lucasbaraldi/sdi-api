@@ -16,6 +16,7 @@ import { ProductUnitModule } from '@modules/product_unit/product_unit.modulle'
 import { BanksModule } from '@modules/banks/banks.module'
 import { PaymentMethodsModule } from '@modules/payment_methods/payment_methods.module'
 import { TransportersModule } from '@modules/transporters/transporters.module'
+import { OrderModule } from '@modules/order/order.module'
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { TransportersModule } from '@modules/transporters/transporters.module'
     SwaggerModule,
     BanksModule,
     PaymentMethodsModule,
-    TransportersModule
+    TransportersModule,
+    OrderModule
   ],
   controllers: [AppController],
   providers: []

@@ -20,13 +20,13 @@ export class ClientService {
         query:
           separaClientes == 'S'
             ? `
-          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email 
+          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email, cod_cidade
           from clientes
           where STATUS_ALT = 'A' and cod_empresa = ${cod_empresa}
           order by cod_cliente
         `
             : `
-          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email 
+          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email, cod_cidade 
           from clientes
           where STATUS_ALT = 'A'
           order by cod_cliente
@@ -69,13 +69,13 @@ export class ClientService {
         query:
           separaClientes == 'S'
             ? `
-          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email 
+          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email, cod_cidade 
           from clientes
           where STATUS_ALT = 'A' and cod_empresa = ${cod_empresa} and cod_cliente = ${cod_cliente}
           order by cod_cliente
         `
             : `
-          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email 
+          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email, cod_cidade 
           from clientes
           where STATUS_ALT = 'A' and cod_cliente = ${cod_cliente}
           order by cod_cliente
