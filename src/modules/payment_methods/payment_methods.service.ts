@@ -69,6 +69,7 @@ export class PaymentMethodsService {
         query: `SELECT * FROM SP_MEIOS_PAGTO(${param1}, ${param2})`,
         params: [],
         buffer: (result: any, err: any) => {
+          console.log('resul meios pagamento: ', result)
           if (err) {
             reject(
               new InternalServerErrorException(

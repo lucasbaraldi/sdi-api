@@ -45,7 +45,7 @@ export class TransportersService {
   async getAllTransporters(): Promise<any> {
     return new Promise((resolve, reject) => {
       this.firebirdClient.runQuery({
-        query: `SELECT * FROM TRANSPORTADORES`,
+        query: `SELECT * FROM TRANSPORTADORES WHERE STATUS = 'A' `,
         params: [],
         buffer: (result: any, err: any) => {
           if (err) {

@@ -1,6 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common'
 import { FirebirdClient } from 'src/firebird/firebird.client'
-import { buscaParametro } from 'src/commons'
 import { CreateOrderDto } from './dto/create-order.dto'
 import { Order } from './entities/order.entity'
 import { OrderItem } from './entities/order-item.entity'
@@ -10,11 +9,13 @@ export class OrderService {
   constructor(private readonly firebirdClient: FirebirdClient) {}
 
   async createOrder(body: CreateOrderDto): Promise<any> {
+    console.log('bateu aqui, body: ', body)
     const {
       cod_empresa,
       id_cliente,
       dt_emissao,
       cod_transp,
+      cod_mepg,
       cod_banco,
       cod_forma_pgto,
       vlr_frete,
@@ -46,7 +47,7 @@ export class OrderService {
         COD_EMPRESA, ID_CLIENTE, DT_EMISSAO, COD_TRANSP, COD_BANCO, 
         COD_FORMA_PGTO, VLR_FRETE, VLR_TOTAL, VLR_PROD, 
         TIPO_FRETE, OBS, STATUS, 
-        COD_VENDEDOR, NRO_CONTROLE
+        COD_VENDEDOR, NRO_CONTROLE, COD_MEPG
       ) VALUES (
         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
       ) RETURNING ID
@@ -61,11 +62,12 @@ export class OrderService {
         vlr_frete || 0,
         vlr_total,
         vlr_prod,
-        tipo_frete || 'S', // Default value for tipo_frete
+        tipo_frete || 'S',
         obs || '',
         'N',
         cod_vendedor,
-        nro_controle
+        nro_controle,
+        cod_mepg
       ]
     })
 

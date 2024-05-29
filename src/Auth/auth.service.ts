@@ -82,7 +82,8 @@ export class AuthService {
           COD_USUARIO: usuario['COD_USUARIO'],
           COD_EMPRESA: usuario['COD_EMPRESA'],
           USUARIO: usuario['USUARIO'],
-          MULTI_EMPRESA: usuario['MULTI_EMPRESA'].trim()
+          MULTI_EMPRESA: usuario['MULTI_EMPRESA'].trim(),
+          MOSTRA_CUSTO_VENDA: usuario['MOSTRA_CUSTO_VENDA']
         },
         vendedor: {
           COD_VENDEDOR: vendedor['COD_VENDEDOR'],
@@ -154,7 +155,8 @@ export class AuthService {
           COD_USUARIO: usuario['COD_USUARIO'],
           COD_EMPRESA: usuario['COD_EMPRESA'],
           USUARIO: usuario['USUARIO'],
-          MULTI_EMPRESA: usuario['MULTI_EMPRESA']
+          MULTI_EMPRESA: usuario['MULTI_EMPRESA'],
+          MOSTRA_CUSTO_VENDA: usuario['MOSTRA_CUSTO_VENDA']
         },
         vendedor: {
           COD_VENDEDOR: vendedor['COD_VENDEDOR'],

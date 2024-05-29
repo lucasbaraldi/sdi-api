@@ -117,3 +117,13 @@ export async function buscaVendedor(
     })
   })
 }
+
+export function arredondarPreco(preco) {
+  const precoNum = parseFloat(preco)
+  const terceiroDecimal = Math.floor((precoNum * 1000) % 10)
+  if (terceiroDecimal >= 5) {
+    return (Math.ceil(precoNum * 100) / 100).toFixed(2)
+  } else {
+    return (Math.floor(precoNum * 100) / 100).toFixed(2)
+  }
+}

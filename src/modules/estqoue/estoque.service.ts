@@ -11,17 +11,33 @@ export class EstoqueService {
     const date = new Date()
     const currentYear = date.getFullYear()
     const currentMonth = date.getMonth() + 1
-    return this.firebirdClient.runQuery({
-      query: `
-      select cod_empresa, cod_produto, saldo_final, ano_ref, mes_ref 
-        from saldo_produtos 
-        where ano_ref = ${currentYear} 
-            and mes_ref = ${currentMonth}
-        order by cod_produto, cod_empresa
-      `,
-      params: []
+
+    return new Promise((resolve, reject) => {
+      this.firebirdClient.runQuery({
+        query: `
+          select cod_empresa, cod_produto, saldo_final, ano_ref, mes_ref 
+          from saldo_produtos 
+          where ano_ref = ${currentYear} 
+              and mes_ref = ${currentMonth}
+          order by cod_produto, cod_empresa
+        `,
+        params: [],
+        buffer: (result: any, err: any) => {
+          if (err) {
+            reject(err)
+          } else {
+            result.forEach(r => {
+              r.SALDO_FINAL = (
+                Math.floor(parseFloat(r.SALDO_FINAL) * 1000) / 1000
+              ).toFixed(3)
+            })
+            resolve(result)
+          }
+        }
+      })
     })
   }
+
   saldoProduto(cod_produto: number): any {
     const date = new Date()
     const currentYear = date.getFullYear()
@@ -38,6 +54,7 @@ export class EstoqueService {
       params: []
     })
   }
+
   async movtoEstoque(body: any) {
     let date_ob = new Date()
     let date = ('0' + date_ob.getDate()).slice(-2)

@@ -13,7 +13,7 @@ export class CreateOrderDto {
   @IsInt()
   @IsNotEmpty()
   @ApiProperty({ required: true })
-  cod_empresa: number // Adicionando o campo cod_empresa
+  cod_empresa: number
 
   @IsInt()
   @IsNotEmpty()
@@ -26,9 +26,14 @@ export class CreateOrderDto {
   dt_emissao: Date
 
   @IsInt()
+  @IsOptional()
+  @ApiProperty()
+  cod_transp?: number
+
+  @IsString()
   @IsNotEmpty()
   @ApiProperty({ required: true })
-  cod_transp: number
+  cod_mepg: string
 
   @IsInt()
   @IsNotEmpty()
@@ -41,9 +46,9 @@ export class CreateOrderDto {
   cod_forma_pgto: number
 
   @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({ required: true })
-  vlr_frete: number
+  @IsOptional()
+  @ApiProperty()
+  vlr_frete?: number
 
   @IsNumber()
   @IsNotEmpty()
@@ -62,7 +67,7 @@ export class CreateOrderDto {
 
   @IsString()
   @IsOptional()
-  @ApiProperty({ required: false })
+  @ApiProperty()
   obs?: string
 
   @IsInt()
