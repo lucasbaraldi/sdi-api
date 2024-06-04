@@ -17,6 +17,7 @@ import { BanksModule } from '@modules/banks/banks.module'
 import { PaymentMethodsModule } from '@modules/payment_methods/payment_methods.module'
 import { TransportersModule } from '@modules/transporters/transporters.module'
 import { OrderModule } from '@modules/order/order.module'
+import { PhotosModule } from './modules/photos/photos.module'
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import { OrderModule } from '@modules/order/order.module'
     BanksModule,
     PaymentMethodsModule,
     TransportersModule,
-    OrderModule
+    OrderModule,
+    PhotosModule
   ],
   controllers: [AppController],
   providers: []

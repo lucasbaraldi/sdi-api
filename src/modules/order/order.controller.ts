@@ -17,7 +17,6 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post('create-order')
-  @UsePipes(new ValidationPipe({ transform: true }))
   @HttpCode(201)
   async createOrder(@Body() createOrderInput: CreateOrderDto) {
     return await this.orderService.createOrder(createOrderInput)

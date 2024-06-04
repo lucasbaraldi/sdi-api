@@ -49,7 +49,7 @@ export class OrderService {
         TIPO_FRETE, OBS, STATUS, 
         COD_VENDEDOR, NRO_CONTROLE, COD_MEPG
       ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
       ) RETURNING ID
     `,
       params: [
@@ -89,8 +89,8 @@ export class OrderService {
           params: [
             pedidoId,
             pedidoId,
-            item.id_seqitem,
             item.id_produto,
+            item.id_seqitem,
             item.quantidade,
             item.vlr_unitario || 0,
             item.vlr_total,
@@ -140,7 +140,9 @@ export class OrderService {
       query,
       params
     })
-
+    const cleanTipoFrete = (tipoFrete: string | null): string | null => {
+      return tipoFrete ? tipoFrete.trim() : null
+    }
     const orders: Order[] = result.map((record: any) => ({
       id: record.ID,
       cod_empresa: record.COD_EMPRESA,
@@ -152,7 +154,7 @@ export class OrderService {
       vlr_frete: record.VLR_FRETE,
       vlr_total: record.VLR_TOTAL,
       vlr_prod: record.VLR_PROD,
-      tipo_frete: record.TIPO_FRETE,
+      tipo_frete: cleanTipoFrete(record.TIPO_FRETE),
       obs: record.OBS,
       status: record.STATUS,
       cod_vendedor: record.COD_VENDEDOR,

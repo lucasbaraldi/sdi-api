@@ -12,7 +12,7 @@ export class PaymentMethodsService {
   async getOnePaymentMethod(cod_forma: number): Promise<any> {
     return new Promise((resolve, reject) => {
       this.firebirdClient.runQuery({
-        query: `SELECT * FROM FORMAS_PAGTO WHERE COD_FORMA = ${cod_forma}`,
+        query: `SELECT * FROM FORMAS_PAGTO WHERE COD_FORMA = ${cod_forma} WHERE SIT_FORMA = 'A'`,
         params: [],
         buffer: (result: any, err: any) => {
           if (err) {
@@ -42,7 +42,8 @@ export class PaymentMethodsService {
   async getAllPaymentMethods(): Promise<any> {
     return new Promise((resolve, reject) => {
       this.firebirdClient.runQuery({
-        query: `SELECT * FROM FORMAS_PAGTO`,
+        query: `SELECT * FROM FORMAS_PAGTO
+                WHERE SIT_FORMA = 'A' `,
         params: [],
         buffer: (result: any, err: any) => {
           if (err) {

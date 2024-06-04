@@ -41,4 +41,12 @@ $ npm run build
 
 # compile PKG
 $ npm run pkg
+
+# Adicionar o caminho C:\Users\SeuNomeDeUsuario\AppData\Roaming\npm ao final da lista de caminhos das variaveis de ambiente no PATH (substitua SeuNomeDeUsuario pelo seu nome de usuário).
+
+
+#Abra o PowerShell como administrador
+# Altere a política de execução para "RemoteSigned" (ou "Unrestricted" se necessário) executando o seguinte comando:
+Set-ExecutionPolicy RemoteSigned
+
 ```

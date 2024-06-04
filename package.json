@@ -5,6 +5,7 @@
   "author": "SDI Sistemas",
   "private": true,
   "license": "UNLICENSED",
+  "bin": "dist/main.js",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -16,9 +17,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "pkg": "pkg ./dist/main.js --output ./build/sdiApi.exe"
+    "pkg": "pkg . --output ./build/sdiApi.exe"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
@@ -26,6 +26,7 @@
     "@nestjs/jwt": "^10.0.3",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/swagger": "^7.1.11",
+    "archiver": "^7.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "dotenv": "^16.0.3",
@@ -39,6 +40,7 @@
     "@nestjs/cli": "^9.0.0",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.0.0",
+    "@types/archiver": "^6.0.2",
     "@types/express": "^4.17.13",
     "@types/jest": "29.5.0",
     "@types/node": "^18.15.11",
@@ -83,7 +85,7 @@
   "pkg": {
     "scripts": "dist/**/*.js",
     "targets": [
-      "node18-win-x64"
+      "node16-win-x64"
     ],
     "assets": [
       "views/**/*"
