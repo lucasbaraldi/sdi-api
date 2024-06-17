@@ -25,12 +25,12 @@ interface JwtPayload {
 
 @Injectable()
 export class AuthService {
-  private readonly accessTokenDuration: number
-  private readonly refreshTokenDuration: number
+  private readonly accessTokenDuration: string
+  private readonly refreshTokenDuration: string
 
   constructor(private readonly firebirdClient: FirebirdClient) {
-    this.accessTokenDuration = parseInt(process.env.ACCESS_TOKEN_DURATION)
-    this.refreshTokenDuration = parseInt(process.env.REFRESH_TOKEN_DURATION)
+    this.accessTokenDuration = process.env.ACCESS_TOKEN_DURATION
+    this.refreshTokenDuration = process.env.REFRESH_TOKEN_DURATION
   }
 
   async login(body: any, @Res() res: Response): Promise<any> {
