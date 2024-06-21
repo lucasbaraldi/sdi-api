@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common'
 import {
   buscaCodSistema,
-  buscaUsuario,
+  buscaParametro,
   buscaVendedor,
   buscaUsuarioPorCodUsuario
 } from 'src/commons'
@@ -50,6 +50,17 @@ export class AuthService {
       )
 
       const codSistema = await buscaCodSistema(this.firebirdClient)
+
+      const parametroBloqueiaVendaAbaixoDaMargem = await new Promise(
+        (res, rej) => {
+          buscaParametro(
+            this.firebirdClient,
+            'PEDIDO_ONLINE_USA_BLOQUEIO_VENDA_PRECO_MINIMO',
+            result => res(result)
+          )
+        }
+      )
+
       const accessToken = jwt.sign(
         {
           id: vendedor['COD_VENDEDOR'],
@@ -78,6 +89,8 @@ export class AuthService {
         refreshToken: refreshToken,
         cod_empresa: vendedor['COD_EMPRESA'],
         codSistema: codSistema,
+        PEDIDO_ONLINE_USA_BLOQUEIO_VENDA_PRECO_MINIMO:
+          parametroBloqueiaVendaAbaixoDaMargem,
         user: {
           COD_USUARIO: usuario['COD_USUARIO'],
           COD_EMPRESA: usuario['COD_EMPRESA'],

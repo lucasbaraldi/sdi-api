@@ -36,7 +36,7 @@ export class FirebirdClient {
   async runQuery({ query, params, buffer }: RunQueryInterface) {
     if (!this.options.database) throw new Error('Database not found')
 
-    let resultQuery = await new Promise((resolve, reject) => {
+    const resultQuery = await new Promise((resolve, reject) => {
       this.firebird.attach(this.options, (err: any, db: any) => {
         if (err) throw err
 
@@ -56,17 +56,20 @@ export class FirebirdClient {
   }
 
   async readIni() {
+    // eslint-disable-next-line no-useless-catch
     try {
       let caminhoGdb = ''
       let nomeGdb = ''
+      // eslint-disable-next-line prefer-const
       let fileStream = fs.createReadStream('DBSDI.INI')
 
+      // eslint-disable-next-line prefer-const
       let rl = readline.createInterface({
         input: fileStream,
         crlfDelay: Infinity
       })
 
-      for await (let line of rl) {
+      for await (const line of rl) {
         // Each line in input.txt will be successively available here as `line`.
         //console.log(`Line from file: ${line}`)
         if (line.substring(0, 1) != ';') {

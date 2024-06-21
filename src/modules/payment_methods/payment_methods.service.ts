@@ -31,6 +31,7 @@ export class PaymentMethodsService {
             result.forEach(r => {
               r.QTD_FORMA = r.QTD_FORMA ? r.QTD_FORMA.trim() : r.QTD_FORMA
               r.SIT_FORMA = r.SIT_FORMA ? r.SIT_FORMA.trim() : r.SIT_FORMA
+              r.EXIBE_APP = r.EXIBE_APP ? r.EXIBE_APP.trim() : r.EXIBE_APP
             })
             resolve(result[0])
           }
@@ -43,7 +44,7 @@ export class PaymentMethodsService {
     return new Promise((resolve, reject) => {
       this.firebirdClient.runQuery({
         query: `SELECT * FROM FORMAS_PAGTO
-                WHERE SIT_FORMA = 'A' `,
+                WHERE SIT_FORMA = 'A' AND EXIBE_APP = 'S'`,
         params: [],
         buffer: (result: any, err: any) => {
           if (err) {
@@ -56,6 +57,7 @@ export class PaymentMethodsService {
             result.forEach(r => {
               r.QTD_FORMA = r.QTD_FORMA ? r.QTD_FORMA.trim() : r.QTD_FORMA
               r.SIT_FORMA = r.SIT_FORMA ? r.SIT_FORMA.trim() : r.SIT_FORMA
+              r.EXIBE_APP = r.EXIBE_APP ? r.EXIBE_APP.trim() : r.EXIBE_APP
             })
             resolve(result)
           }
@@ -97,6 +99,7 @@ export class PaymentMethodsService {
               r.TEF_INTEGRADO = r.TEF_INTEGRADO
                 ? r.TEF_INTEGRADO.trim()
                 : r.TEF_INTEGRADO
+              r.EXIBE_APP = r.EXIBE_APP ? r.EXIBE_APP.trim() : r.EXIBE_APP
             })
             resolve(result)
           }
