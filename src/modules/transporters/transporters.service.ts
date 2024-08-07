@@ -45,7 +45,7 @@ export class TransportersService {
   async getAllTransporters(): Promise<any> {
     return new Promise((resolve, reject) => {
       this.firebirdClient.runQuery({
-        query: `SELECT * FROM TRANSPORTADORES WHERE STATUS = 'A' `,
+        query: `SELECT * FROM TRANSPORTADORES WHERE STATUS = 'A' AND EXIBE_APP ='S'`,
         params: [],
         buffer: (result: any, err: any) => {
           if (err) {
@@ -62,6 +62,10 @@ export class TransportersService {
               transporter.PLACA = transporter.PLACA?.trim()
               transporter.UF_PLACA = transporter.UF_PLACA?.trim()
               transporter.TIPO_PESSOA = transporter.TIPO_PESSOA?.trim()
+              transporter.STATUS = transporter.STATUS?.trim()
+              transporter.EXIBE_APP = transporter.EXIBE_APP
+                ? transporter.EXIBE_APP.trim()
+                : transporter.EXIBE_APP
             })
             resolve(result)
           }

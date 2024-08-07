@@ -80,7 +80,11 @@ export class PaymentMethodsService {
               )
             )
           } else {
-            result.forEach(r => {
+            const filteredResult = result.filter(
+              (r: any) => r.EXIBE_APP?.trim() === 'S'
+            )
+
+            filteredResult.forEach((r: any) => {
               r.COD_MEPG = r.COD_MEPG ? r.COD_MEPG.trim() : r.COD_MEPG
               r.DESCRICAO = r.DESCRICAO ? r.DESCRICAO.trim() : r.DESCRICAO
               r.TIPO_PAGTO = r.TIPO_PAGTO ? r.TIPO_PAGTO.trim() : r.TIPO_PAGTO
@@ -101,7 +105,8 @@ export class PaymentMethodsService {
                 : r.TEF_INTEGRADO
               r.EXIBE_APP = r.EXIBE_APP ? r.EXIBE_APP.trim() : r.EXIBE_APP
             })
-            resolve(result)
+
+            resolve(filteredResult)
           }
         }
       })

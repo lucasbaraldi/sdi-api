@@ -35,14 +35,17 @@ export class PriceTableService {
     return new Promise((resolve, reject) => {
       return this.firebirdClient.runQuery({
         query: `
-          select cod_produto, seq_tabela, preco_venda, descr_tabela, mrg_extra, mrg_extra_adicional from tabela_precos
+          SELECT tp.cod_produto, tp.seq_tabela, tp.preco_venda, tp.descr_tabela, tp.mrg_extra, tp.mrg_extra_adicional 
+          FROM tabela_precos tp
+          INNER JOIN produtos p ON tp.cod_produto = p.cod_produto
+          WHERE p.TIPO_PROD = 'A'
         `,
         params: [],
         buffer: (result: any, err: any) => {
           if (err) {
             reject(err)
           } else {
-            result.forEach(r => {
+            result.forEach((r: any) => {
               r.PRECO_VENDA = arredondarPreco(r.PRECO_VENDA)
             })
             console.log('Tabela de Preços enviada')
