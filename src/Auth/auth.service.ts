@@ -89,11 +89,13 @@ export class AuthService {
         refreshToken: refreshToken,
         cod_empresa: vendedor['COD_EMPRESA'],
         codSistema: codSistema,
+
         PEDIDO_ONLINE_USA_BLOQUEIO_VENDA_PRECO_MINIMO:
           parametroBloqueiaVendaAbaixoDaMargem,
         user: {
           COD_USUARIO: usuario['COD_USUARIO'],
           COD_EMPRESA: usuario['COD_EMPRESA'],
+          COD_PARAMETRO: usuario['COD_PARAMETRO'],
           USUARIO: usuario['USUARIO'],
           MULTI_EMPRESA: usuario['MULTI_EMPRESA'].trim(),
           MOSTRA_CUSTO_VENDA: usuario['MOSTRA_CUSTO_VENDA']
@@ -167,6 +169,7 @@ export class AuthService {
         user: {
           COD_USUARIO: usuario['COD_USUARIO'],
           COD_EMPRESA: usuario['COD_EMPRESA'],
+          COD_PARAMETRO: usuario['COD_PARAMETRO'],
           USUARIO: usuario['USUARIO'],
           MULTI_EMPRESA: usuario['MULTI_EMPRESA'],
           MOSTRA_CUSTO_VENDA: usuario['MOSTRA_CUSTO_VENDA']

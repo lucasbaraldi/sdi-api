@@ -3,13 +3,14 @@ import { FirebirdClient } from 'src/firebird/firebird.client'
 import { CreateOrderDto } from './dto/create-order.dto'
 import { Order } from './entities/order.entity'
 import { OrderItem } from './entities/order-item.entity'
+import { saveLog } from 'src/commons'
 
 @Injectable()
 export class OrderService {
   constructor(private readonly firebirdClient: FirebirdClient) {}
 
   async createOrder(body: CreateOrderDto): Promise<any> {
-    console.log('bateu aqui, body: ', body)
+    console.log('createOrder', body)
     const {
       cod_empresa,
       id_cliente,
@@ -104,6 +105,47 @@ export class OrderService {
       })
     )
 
+    //* Formatar o log com corpo do pedido e itens
+    const logData = `
+  Pedido ID: ${pedidoId}
+  ----------------------
+  Empresa: ${cod_empresa}
+  Cliente: ${id_cliente}
+  Data Emissão: ${dt_emissao}
+  Transporte: ${cod_transp || 'N/A'}
+  Banco: ${cod_banco || 'N/A'}
+  Forma de Pagamento: ${cod_forma_pgto}
+  Frete: ${vlr_frete || 0}
+  Total: ${vlr_total}
+  Produtos: ${vlr_prod}
+  Tipo de Frete: ${tipo_frete || 'S'}
+  Observações: ${obs || 'Nenhuma'}
+  Vendedor: ${cod_vendedor}
+  Controle Nº: ${nro_controle}
+  ----------------------
+  Itens:
+  ${itens
+    .map(
+      (item: any, index: number) => `
+  Item ${index + 1}:
+    Produto ID: ${item.id_produto}
+    Sequência: ${item.id_seqitem}
+    Quantidade: ${item.quantidade}
+    Valor Unitário: ${item.vlr_unitario || 0}
+    Valor Total: ${item.vlr_total}
+    Descrição: ${item.descr_prod || ''}
+    Tabela de Preço: ${item.cod_tabpreco || 'N/A'}
+    Desconto: ${item.perc_descto || 0}%
+    Quantidade 2: ${item.quantidade2 || 0}
+    Unidade 2: ${item.unid2 || 0}
+  `
+    )
+    .join('\n')}
+  ----------------------
+  `
+
+    await saveLog(`pedido_${pedidoId}.txt`, logData)
+
     console.log(`Pedido ${pedidoId} adicionado com sucesso`)
     return { message: `Pedido ${pedidoId} adicionado com sucesso` }
   }
@@ -170,11 +212,21 @@ export class OrderService {
   }
 
   private async getOrderItems(orderId: number): Promise<OrderItem[]> {
-    const query = `
-      SELECT *
+    const query = `SELECT 
+        ID_PEDIDO, 
+        ID_PRODUTO, 
+        ID_SEQITEM, 
+        QUANTIDADE, 
+        VLR_UNITARIO, 
+        VLR_TOTAL, 
+        DESCR_PROD, 
+        COD_TABPRECO, 
+        PERC_DESCTO, 
+        QUANTIDADE2, 
+        UNID2
       FROM ONLINE_PEDIDOITEM
-      WHERE ID_PEDIDO = ?
-    `
+      WHERE ID_PEDIDO = ?`
+
     const params = [orderId]
 
     const result: any = await this.firebirdClient.runQuery({
@@ -183,7 +235,6 @@ export class OrderService {
     })
 
     const orderItems: OrderItem[] = result.map((record: any) => ({
-      id: record.ID,
       id_pedido: record.ID_PEDIDO,
       id_produto: record.ID_PRODUTO,
       id_seqitem: record.ID_SEQITEM,
@@ -198,5 +249,51 @@ export class OrderService {
     }))
 
     return orderItems
+  }
+
+  async checkOrderByDetails(
+    nro_controle: number,
+    id_cliente: number,
+    vlr_total: number,
+    vlr_prod: number
+  ): Promise<{ order: Order | null }> {
+    const query = `
+      SELECT *
+      FROM ONLINE_PEDIDO
+      WHERE NRO_CONTROLE = ? AND ID_CLIENTE = ? AND VLR_TOTAL = ? AND VLR_PROD = ?
+    `
+    const params = [nro_controle, id_cliente, vlr_total, vlr_prod]
+
+    const result = (await this.firebirdClient.runQuery({
+      query,
+      params
+    })) as any[]
+
+    const record = result[0]
+    if (!record) {
+      return { order: null }
+    }
+
+    const order: Order = {
+      id: record.ID,
+      cod_empresa: record.COD_EMPRESA,
+      dtEmissao: new Date(record.DT_EMISSAO),
+      idCliente: record.ID_CLIENTE,
+      codTransp: record.COD_TRANSP,
+      codFormaPgto: record.COD_FORMA_PGTO,
+      codBanco: record.COD_BANCO,
+      vlrFrete: record.VLR_FRETE,
+      vlrTotal: record.VLR_TOTAL,
+      vlrProd: record.VLR_PROD,
+      tipoFrete: record.TIPO_FRETE ? record.TIPO_FRETE.trim() : null,
+      obs: record.OBS,
+      status: record.STATUS,
+      codVendedor: record.COD_VENDEDOR,
+      nroControle: record.NRO_CONTROLE
+    }
+
+    return {
+      order
+    }
   }
 }

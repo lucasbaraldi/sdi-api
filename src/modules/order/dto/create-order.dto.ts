@@ -4,7 +4,8 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsString
+  IsString,
+  Min
 } from 'class-validator'
 import { CreateOrderItemDto } from './create-order-item.dto'
 import { ApiProperty } from '@nestjs/swagger'
@@ -72,6 +73,7 @@ export class CreateOrderDto {
 
   @IsInt()
   @IsNotEmpty()
+  @Min(1, { message: 'O código do vendedor deve ser maior que 0' })
   @ApiProperty({ required: true })
   cod_vendedor: number
 

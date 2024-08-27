@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { Injectable } from '@nestjs/common'
 import { buscaParametro } from 'src/commons'
 
@@ -15,11 +16,20 @@ export class EstoqueService {
     return new Promise((resolve, reject) => {
       this.firebirdClient.runQuery({
         query: `
-          select cod_empresa, cod_produto, saldo_final, ano_ref, mes_ref 
-          from saldo_produtos 
-          where ano_ref = ${currentYear} 
-              and mes_ref = ${currentMonth}
-          order by cod_produto, cod_empresa
+        SELECT 
+          cod_empresa, 
+          cod_produto, 
+          saldo_final + COALESCE(saldo_final2, 0) AS saldo_final, 
+          ano_ref, 
+          mes_ref 
+        FROM 
+            saldo_produtos 
+        WHERE 
+            ano_ref = ${currentYear} 
+            AND mes_ref = ${currentMonth}
+        ORDER BY 
+            cod_produto, 
+            cod_empresa
         `,
         params: [],
         buffer: (result: any, err: any) => {
@@ -44,22 +54,31 @@ export class EstoqueService {
     const currentMonth = date.getMonth() + 1
     return this.firebirdClient.runQuery({
       query: `
-      select cod_empresa, cod_produto, saldo_final, ano_ref, mes_ref 
-        from saldo_produtos 
-        where ano_ref = ${currentYear} 
-            and mes_ref = ${currentMonth}
+              SELECT 
+          cod_empresa, 
+          cod_produto, 
+          saldo_final + COALESCE(saldo_final2, 0) AS saldo_final, 
+          ano_ref, 
+          mes_ref 
+        FROM 
+            saldo_produtos 
+        WHERE 
+            ano_ref = ${currentYear} 
+            AND mes_ref = ${currentMonth}
             and cod_produto = ${cod_produto}
-        order by cod_produto, cod_empresa
+        ORDER BY 
+            cod_produto, 
+            cod_empresa
       `,
       params: []
     })
   }
 
   async movtoEstoque(body: any) {
-    let date_ob = new Date()
-    let date = ('0' + date_ob.getDate()).slice(-2)
-    let month = ('0' + (date_ob.getMonth() + 1)).slice(-2)
-    let year = date_ob.getFullYear()
+    const date_ob = new Date()
+    const date = ('0' + date_ob.getDate()).slice(-2)
+    const month = ('0' + (date_ob.getMonth() + 1)).slice(-2)
+    const year = date_ob.getFullYear()
 
     const dataAtual = month + '/' + date + '/' + year
 
@@ -68,6 +87,7 @@ export class EstoqueService {
 
     const { cod_produto, cod_empresa, cod_usuario, quantidade } = body
 
+    // eslint-disable-next-line prefer-const
     nro_doc = 'APP' + date + month + year
 
     let codigoConsumidorFinal = await new Promise((res, rej) => {

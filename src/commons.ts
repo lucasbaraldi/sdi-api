@@ -3,6 +3,9 @@ import { FirebirdClient } from 'src/firebird/firebird.client'
 import * as Firebird from 'node-firebird'
 import { BadRequestException, NotFoundException } from '@nestjs/common'
 
+import * as fs from 'fs'
+import * as path from 'path'
+
 export async function buscaParametro(
   firebirdClient: FirebirdClient,
   nomeParametro: string,
@@ -61,7 +64,7 @@ export async function buscaUsuarioPorCodUsuario(
   return new Promise((resolve, reject) => {
     firebirdClient.runQuery({
       query: `
-        SELECT COD_USUARIO, COD_EMPRESA, USUARIO, MULTI_EMPRESA, ATIVO 
+        SELECT COD_USUARIO, COD_EMPRESA, USUARIO, MULTI_EMPRESA, ATIVO, COD_PARAMETRO
         FROM ACESSO 
         WHERE COD_USUARIO = ? AND ATIVO = 'S'
       `,
@@ -125,5 +128,27 @@ export function arredondarPreco(preco) {
     return (Math.ceil(precoNum * 100) / 100).toFixed(2)
   } else {
     return (Math.floor(precoNum * 100) / 100).toFixed(2)
+  }
+}
+
+export async function saveLog(filename: string, data: string) {
+  try {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, '0') // Ajuste para 0-based
+
+    const logDir = path.join(process.cwd(), 'logs', `${month}${year}`)
+    const logFile = path.join(logDir, filename)
+
+    // Cria a pasta, caso não exista
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true })
+    }
+
+    // Escreve o log no arquivo
+    fs.appendFileSync(logFile, `${data}\n`, 'utf8')
+    console.log(`Log salvo em ${logFile}`)
+  } catch (error) {
+    console.error('Erro ao salvar o log:', error)
   }
 }

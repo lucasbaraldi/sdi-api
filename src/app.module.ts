@@ -18,6 +18,7 @@ import { PaymentMethodsModule } from '@modules/payment_methods/payment_methods.m
 import { TransportersModule } from '@modules/transporters/transporters.module'
 import { OrderModule } from '@modules/order/order.module'
 import { PhotosModule } from './modules/photos/photos.module'
+import { ConfigModule } from '@modules/config/config.module'
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { PhotosModule } from './modules/photos/photos.module'
     PaymentMethodsModule,
     TransportersModule,
     OrderModule,
-    PhotosModule
+    PhotosModule,
+    ConfigModule
   ],
   controllers: [AppController],
   providers: []

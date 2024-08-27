@@ -20,13 +20,13 @@ export class ClientService {
         query:
           separaClientes == 'S'
             ? `
-          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email, cod_cidade
+          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email, cod_cidade, cod_classcli
           from clientes
           where TIPO_CLI = 'A' and cod_empresa = ${cod_empresa} and status_cliforn != 'F' and status_cliforn != 'T'
           order by cod_cliente
         `
             : `
-          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email, cod_cidade  
+          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email, cod_cidade, cod_classcli  
           from clientes
           where TIPO_CLI = 'A' and status_cliforn != 'F' and status_cliforn != 'T'
           order by cod_cliente
@@ -69,15 +69,15 @@ export class ClientService {
         query:
           separaClientes == 'S'
             ? `
-          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email, cod_cidade 
+          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email, cod_cidade, cod_classcli
           from clientes
           where TIPO_CLI = 'A' and cod_empresa = ${cod_empresa} and cod_cliente = ${cod_cliente} and status_cliforn != 'F' and status_cliforn != 'T'
           order by cod_cliente
         `
             : `
-          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email, cod_cidade and status_cliforn != 'T'
+          select cod_cliente, nome, endereco, numero, complemento, bairro, cep, cnpj, cpf, fone, email, cod_cidade, cod_classcli
           from clientes
-          where TIPO_CLI = 'A' and cod_cliente = ${cod_cliente} and status_cliforn != 'F'
+          where TIPO_CLI = 'A' and cod_cliente = ${cod_cliente} and status_cliforn != 'F' and status_cliforn != 'T'
           order by cod_cliente
         `,
         params: [],

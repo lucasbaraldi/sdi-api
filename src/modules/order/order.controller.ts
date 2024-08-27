@@ -6,7 +6,8 @@ import {
   Get,
   Query,
   Patch,
-  Param
+  Param,
+  NotFoundException
 } from '@nestjs/common'
 import { OrderService } from './order.service'
 import { CreateOrderDto } from './dto/create-order.dto'
@@ -61,5 +62,30 @@ export class OrderController {
   @Get('check-released-status')
   async checkReleasedStatus(@Query('requestId') requestId: string) {
     return await this.orderReleaseService.checkReleasedStatus(requestId)
+  }
+
+  @Get('check-order-details')
+  async checkOrderDetails(
+    @Query('nro_controle') nroControle: number,
+    @Query('id_cliente') idCliente: number,
+    @Query('vlr_total') vlrTotal: number,
+    @Query('vlr_prod') vlrProd: number
+  ) {
+    const { order } = await this.orderService.checkOrderByDetails(
+      nroControle,
+      idCliente,
+      vlrTotal,
+      vlrProd
+    )
+
+    if (!order) {
+      throw new NotFoundException(
+        'Nenhuma ordem encontrada com os detalhes fornecidos.'
+      )
+    }
+
+    return {
+      order
+    }
   }
 }
