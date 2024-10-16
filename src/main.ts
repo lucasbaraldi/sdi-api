@@ -5,6 +5,7 @@ import { config } from 'dotenv'
 import * as fs from 'fs'
 import { ValidationPipe } from '@nestjs/common'
 import { swagger } from '@config/swagger'
+import * as os from 'os'
 
 config({
   path: '.env'
@@ -34,5 +35,21 @@ async function bootstrap() {
   swagger(app)
   const port = process.env.PORT || 3000
   await app.listen(port)
+
+  // Obter o endereço IP da máquina
+  const networkInterfaces = os.networkInterfaces()
+  let ip = 'localhost'
+  for (const interfaceName in networkInterfaces) {
+    const interfaces = networkInterfaces[interfaceName]
+    for (const iface of interfaces) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        ip = iface.address
+        break
+      }
+    }
+    if (ip !== 'localhost') break
+  }
+
+  console.log(`Aplicação rodando em https://${ip}:${port}`)
 }
 bootstrap()

@@ -22,11 +22,13 @@
     "nexe": "nexe dist/main.js -o ./build/sdiApi.exe -t windows-x64-20.0.0 -r \"certificate/**/*\" --build"
   },
   "dependencies": {
+    "@godaddy/terminus": "^4.12.1",
     "@nestjs/common": "^9.0.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/swagger": "^7.3.1",
+    "@nestjs/terminus": "^10.2.3",
     "archiver": "^7.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",

@@ -152,3 +152,46 @@ export async function saveLog(filename: string, data: string) {
     console.error('Erro ao salvar o log:', error)
   }
 }
+
+export function normalizeName(name: string): string {
+  return name
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, ' ');
+}
+
+export function normalizePhoneNumber(phone?: string): string {
+  if (!phone) return '';
+  
+  // Remove todos os caracteres não numéricos e o código do país (+55), se presente
+  const numericPhone = phone.replace(/^\+55/, '').replace(/\D/g, '');
+  
+  // Verifica se o número tem 10 ou 11 dígitos
+  if (numericPhone.length === 10 || numericPhone.length === 11) {
+    const ddd = numericPhone.slice(0, 2);
+    const prefix = numericPhone.length === 11 ? numericPhone.slice(2, 7) : numericPhone.slice(2, 6);
+    const suffix = numericPhone.slice(-4);
+    
+    return `(${ddd}) ${prefix}-${suffix}`;
+  }
+  
+  // Se o número não tiver o formato esperado, retorna uma string vazia
+  return '';
+}
+
+export function formatClientFields(client: any): any {
+  const formatField = (value: string | null | undefined) => 
+    value ? value.trim().toUpperCase() : value;
+
+  return {
+    ...client,
+    NOME: formatField(client.NOME),
+    ENDERECO: formatField(client.ENDERECO),
+    NUMERO: formatField(client.NUMERO),
+    BAIRRO: formatField(client.BAIRRO),
+    CELULAR: client.CELULAR?.trim(),
+    TIPO_CLI: formatField(client.TIPO_CLI),
+    STATUS_CLIFORN: formatField(client.STATUS_CLIFORN),
+    TIPO_PESSOA: formatField(client.TIPO_PESSOA)
+  };
+}

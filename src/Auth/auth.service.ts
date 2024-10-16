@@ -136,6 +136,16 @@ export class AuthService {
         vendedor['COD_USUARIO']
       )
 
+      const parametroBloqueiaVendaAbaixoDaMargem = await new Promise(
+        (res, rej) => {
+          buscaParametro(
+            this.firebirdClient,
+            'PEDIDO_ONLINE_USA_BLOQUEIO_VENDA_PRECO_MINIMO',
+            result => res(result)
+          )
+        }
+      )
+
       const newAccessToken = jwt.sign(
         {
           id: vendedor['COD_VENDEDOR'],
@@ -166,6 +176,8 @@ export class AuthService {
         refreshToken: newRefreshToken,
         cod_empresa: vendedor['COD_EMPRESA'],
         codSistema: codSistema,
+        PEDIDO_ONLINE_USA_BLOQUEIO_VENDA_PRECO_MINIMO:
+          parametroBloqueiaVendaAbaixoDaMargem,
         user: {
           COD_USUARIO: usuario['COD_USUARIO'],
           COD_EMPRESA: usuario['COD_EMPRESA'],
@@ -183,8 +195,19 @@ export class AuthService {
         }
       })
     } catch (err) {
-      console.log('erro no refresh-token')
-      throw new UnauthorizedException('Invalid refresh token')
+      console.log('erro no refresh-token', err)
+      if (
+        err instanceof UnauthorizedException ||
+        err instanceof jwt.JsonWebTokenError
+      ) {
+        return res
+          .status(401)
+          .json({ message: 'Token de atualização inválido ou expirado' })
+      }
+      return res.status(500).json({
+        message:
+          'Erro interno ao atualizar o token. Por favor, tente novamente mais tarde.'
+      })
     }
   }
 }

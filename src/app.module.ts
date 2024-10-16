@@ -19,9 +19,11 @@ import { TransportersModule } from '@modules/transporters/transporters.module'
 import { OrderModule } from '@modules/order/order.module'
 import { PhotosModule } from './modules/photos/photos.module'
 import { ConfigModule } from '@modules/config/config.module'
+import { TerminusModule } from '@nestjs/terminus'
 
 @Module({
   imports: [
+    TerminusModule,
     ComandaModule,
     AuthModule,
     EstoqueModule,

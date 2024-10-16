@@ -44,7 +44,7 @@ export class ConfigService {
       params: [codEmpresa, codParametro]
     })
 
-    if (!configWhats) {
+    if (!configWhats || configWhats.length === 0) {
       throw new NotFoundException('Configuração não encontrada')
     }
 
