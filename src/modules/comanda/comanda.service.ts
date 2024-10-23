@@ -1,10 +1,13 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { buscaParametro } from 'src/commons'
 
 import { FirebirdClient } from 'src/firebird/firebird.client'
+import { CreateComandaDto } from './dto/create-comanda.dto'
 
 @Injectable()
 export class ComandaService {
+  private readonly logger = new Logger(ComandaService.name)
+
   constructor(private readonly firebirdClient: FirebirdClient) {}
 
   itensComanda(nro_controle: any): any {
@@ -20,8 +23,7 @@ export class ComandaService {
           BAR_ROMANEIO BR ON ( IR.COD_EMPRESA = BR.COD_EMPRESA AND 
                IR.TIPO_CONTROL = BR.TIPO_CONTROL AND 
                IR.NRO_ROMANEIO = BR.NRO_ROMANEIO) 
-      WHERE BR.NRO_CONTROLE = 
-      nro_controle 
+      WHERE BR.NRO_CONTROLE = ${nro_controle} 
       AND R.SITUACAO = 'A' 
       ORDER BY SEQ_ITEM 
       `,
@@ -196,25 +198,12 @@ export class ComandaService {
     })
   }
 
-  async comandas(body: any) {
-    let cliente
-    const obsDescricao = await new Promise((res, rej) => {
-      buscaParametro(
-        this.firebirdClient,
-        'BAR_PEDIDO_ITEM_OBS_NA_DESCRICAO',
-        result => res(result)
-      )
-    })
-    console.log('obsDescricao: ', obsDescricao)
+  async comandas(createComandaDto: CreateComandaDto) {
+    const obsDescricao = await this.buscaParametro('BAR_PEDIDO_ITEM_OBS_NA_DESCRICAO')
+    const codigoConsumidorFinal = await this.buscaParametro('CONSUMIDORFINAL')
 
-    const codigoConsumidorFinal = await new Promise((res, rej) => {
-      buscaParametro(this.firebirdClient, 'CONSUMIDORFINAL', result => {
-        res(result)
-      })
-    })
-    console.log('codigoConsumidorFinal: ', codigoConsumidorFinal)
-
-    let observacaoGeral, observacaoItem
+    this.logger.log(`obsDescricao: ${obsDescricao}`)
+    this.logger.log(`codigoConsumidorFinal: ${codigoConsumidorFinal}`)
 
     const {
       dt_emissao,
@@ -227,136 +216,85 @@ export class ComandaService {
       vlr_prod,
       tipo_frete,
       obs,
-      status,
       email,
       cod_vendedor,
       nro_controle,
       nro_dispositivo,
       hr_emissao,
       itens
-    } = body
+    } = createComandaDto
 
-    console.log('Nro_controle: ' + nro_controle)
-    console.log('Codigo Cliente app: ' + id_cliente)
-    console.log('Condigo Consumidor Final: ' + codigoConsumidorFinal)
-    console.log('nro_dispositivo: ' + nro_dispositivo)
-    console.log('dt_emissão: ' + dt_emissao)
-    if (id_cliente == null) {
-      cliente = codigoConsumidorFinal
-    } else {
-      cliente = id_cliente
-    }
+    const cliente = id_cliente ?? codigoConsumidorFinal
+
+    this.logger.log(`Nro_controle: ${nro_controle}`)
+    this.logger.log(`Codigo Cliente app: ${id_cliente}`)
+    this.logger.log(`Codigo Consumidor Final: ${codigoConsumidorFinal}`)
+    this.logger.log(`nro_dispositivo: ${nro_dispositivo}`)
+    this.logger.log(`dt_emissão: ${dt_emissao}`)
 
     const result: any = await this.firebirdClient.runQuery({
       query:
-        'INSERT INTO ONLINE_PEDIDO (' +
-        'DT_EMISSAO, ' +
-        'ID_CLIENTE, ' +
-        'COD_TRANSP, ' +
-        'COD_FORMA_PGTO, ' +
-        'COD_BANCO, ' +
-        'VLR_FRETE, ' +
-        'VLR_TOTAL, ' +
-        'VLR_PROD, ' +
-        'TIPO_FRETE, ' +
-        'OBS, ' +
-        'STATUS, ' +
-        'EMAIL, ' +
-        'COD_VENDEDOR, ' +
-        'NRO_CONTROLE, ' +
-        'NRO_TABLET, ' +
-        'HR_EMISSAO) ' +
-        'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id',
+       `INSERT INTO ONLINE_PEDIDO ( 
+       COD_EMPRESA, DT_EMISSAO, ID_CLIENTE, COD_TRANSP, COD_FORMA_PGTO, 
+       COD_BANCO, VLR_FRETE, VLR_TOTAL, VLR_PROD, TIPO_FRETE, OBS, STATUS, 
+       EMAIL, COD_VENDEDOR, NRO_CONTROLE, NRO_TABLET, HR_EMISSAO ) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING ID `,
       params: [
-        dt_emissao,
-        cliente,
-        cod_transp,
-        cod_forma_pgto,
-        cod_banco,
-        vlr_frete,
-        vlr_total,
-        vlr_prod,
-        tipo_frete,
-        obs,
-        'I',
-        email,
-        cod_vendedor,
-        nro_controle,
-        nro_dispositivo,
-        hr_emissao
+        1, dt_emissao, cliente, cod_transp, cod_forma_pgto,
+        cod_banco, vlr_frete, vlr_total, vlr_prod, tipo_frete, obs, 'I',
+        email, cod_vendedor, nro_controle, nro_dispositivo, hr_emissao
       ]
     })
-    await Promise.all(
-      itens.map(async (item: any, idx: number) => {
-        let observacaoGeral
-        let observacaoItem
 
-        if (obsDescricao === 'N') {
-          observacaoGeral = item.obs_sabores
-          observacaoItem = item.descr_prod
-        } else {
-          observacaoGeral = null
-          if (item.obs_sabores === '') {
-            observacaoItem = item.descr_prod
-          } else {
-            observacaoItem = item.descr_prod + ' (' + item.obs_sabores + ')'
-          }
-        }
+    const pedidoId = result.ID
+
+    await Promise.all(
+      itens.map(async (item, idx) => {
+        const observacaoItem = this.formatarObservacaoItem(obsDescricao, item)
+        
         await this.firebirdClient.runQuery({
           query:
-            'INSERT INTO ONLINE_PEDIDOITEM ( ' +
-            'ID_PEDIDO, ' +
-            'ID_PRODUTO, ' +
-            'ID_SEQITEM, ' +
-            'QUANTIDADE, ' +
-            'VLR_UNITARIO,  ' +
-            'VLR_TOTAL,  ' +
-            'DESCR_PROD, ' +
-            'COD_TABPRECO, ' +
-            'PERC_DESCTO, ' +
-            'DESCR_COMPLTO, ' +
-            'CARDAPIO, ' +
-            'NRO_CARDAPIO, ' +
-            'FINALIZACAO, ' +
-            'NRO_MESA, ' +
-            'OBS_SABORES, ' +
-            'QUANTIDADE2, ' +
-            'UNID2, ' +
-            'TIPO_ITEM) ' +
-            'VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            `INSERT INTO ONLINE_PEDIDOITEM ( 
+            ID_PEDIDO, ID_PRODUTO, ID_SEQITEM, QUANTIDADE, VLR_UNITARIO, VLR_TOTAL,
+             DESCR_PROD, COD_TABPRECO, PERC_DESCTO, DESCR_COMPLTO, CARDAPIO, NRO_CARDAPIO, 
+             FINALIZACAO, NRO_MESA, OBS_SABORES, QUANTIDADE2, UNID2, TIPO_ITEM ) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           params: [
-            result.ID,
-            item.id_produto,
-            idx + 1,
-            item.quantidade,
-            item.vlr_unitario,
-            item.vlr_total,
-            item.descr_prod,
-            item.cod_tabpreco,
-            item.perc_descto,
-            observacaoItem,
-            item.cardapio,
-            item.nro_cardapio,
-            item.finalizacao,
-            item.nro_mesa,
-            observacaoGeral,
-            item.quantidade2,
-            item.unid2,
-            item.tipo_item
+            pedidoId, item.id_produto, idx + 1, item.quantidade, item.vlr_unitario,
+            item.vlr_total, item.descr_prod, item.cod_tabpreco, item.perc_descto,
+            observacaoItem.observacaoItem, item.cardapio, item.nro_cardapio,
+            item.finalizacao, item.nro_mesa, observacaoItem.observacaoGeral,
+            item.quantidade2, item.unid2, item.tipo_item
           ]
         })
-
-        if (idx === itens.length - 1) {
-          console.log(`Comanda ${result.ID} adicionada com sucesso`)
-          return {
-            message: `Comanda ${result.ID} adicionada com sucesso`
-          }
-        }
       })
     )
+
+    this.logger.log(`Comanda ${pedidoId} adicionada com sucesso`)
     return {
-      message: `Comanda ${result.ID} adicionada com sucesso`
+      message: `Comanda ${pedidoId} adicionada com sucesso`,
+      id: pedidoId
     }
+  }
+
+  private async buscaParametro(parametro: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      buscaParametro(this.firebirdClient, parametro, result => resolve(result))
+    })
+  }
+
+  private formatarObservacaoItem(obsDescricao: string, item: any) {
+    let observacaoGeral, observacaoItem
+
+    if (obsDescricao === 'N') {
+      observacaoGeral = item.obs_sabores
+      observacaoItem = item.descr_prod
+    } else {
+      observacaoGeral = null
+      observacaoItem = item.obs_sabores ? `${item.descr_prod} (${item.obs_sabores})` : item.descr_prod
+    }
+
+    return { observacaoGeral, observacaoItem }
   }
 
   produtos(): Promise<any> {

@@ -1,6 +1,9 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common'
 import { ComandaService } from './comanda.service'
+import { CreateComandaDto } from './dto/create-comanda.dto'
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger'
 
+@ApiTags('comanda')
 @Controller('comanda')
 export class ComandaController {
   constructor(private readonly comandaService: ComandaService) {}
@@ -51,7 +54,11 @@ export class ComandaController {
   }
 
   @Post('/comandas')
-  comandas(@Body() body: any) {
-    return this.comandaService.comandas(body)
+  @ApiOperation({ summary: 'Criar uma nova comanda' })
+  @ApiResponse({ status: 201, description: 'Comanda criada com sucesso.' })
+  @ApiResponse({ status: 400, description: 'Dados inválidos.' })
+  comandas(@Body() createComandaDto: CreateComandaDto) {
+    console.log(createComandaDto)
+    return this.comandaService.comandas(createComandaDto)
   }
 }
