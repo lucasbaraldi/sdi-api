@@ -1,6 +1,6 @@
-# Nome do Seu Projeto
+# SDI API
 
-Descrição do seu projeto.
+API desenvolvida em NestJS para o sistema SDI.
 
 ## Instalação
 
@@ -39,6 +39,57 @@ npm run test:e2e
 # Cobertura de testes
 npm run test:cov
 ```
+
+## Gerando Executável para Windows
+
+Para gerar um executável (.exe) para Windows com versionamento automático, use o comando:
+
+```bash
+npm run build:release
+```
+
+Este comando irá:
+
+- Compilar o TypeScript para JavaScript
+- Empacotar a aplicação usando yao/pkg com compressão Brotli
+- Gerar um executável `sdiApi_V_X.X.X.exe` (onde X.X.X é a versão do package.json)
+- Criar um arquivo ZIP `sdiApi_V_X.X.X.zip` com o executável e arquivos necessários
+
+### Comandos Relacionados
+
+```bash
+# Apenas compilar o projeto
+npm run build
+
+# Apenas gerar o executável (após build)
+npm run pkg
+
+# Apenas criar o ZIP (após pkg)
+npm run release
+
+# Versão completa com todas as fotos
+npm run release:full
+```
+
+### Arquivos Gerados
+
+O comando `npm run build:release` gera:
+
+- **sdiApi_V_X.X.X.exe** - Executável comprimido com Brotli (~64MB)
+- **sdiApi_V_X.X.X.zip** - Pacote completo para distribuição (~30MB)
+
+O ZIP contém:
+
+- Executável principal
+- Certificados SSL (pasta certificate/)
+- Documentação (README.md, EMPACOTAMENTO.md)
+- Informações da versão (VERSION_INFO.json)
+
+### Instalação no Servidor
+
+1. Extraia o arquivo ZIP no servidor Windows
+2. Execute o arquivo `sdiApi_V_X.X.X.exe`
+3. Certifique-se que o arquivo `DBSDI.INI` está configurado corretamente
 
 ## Usando PKG
 

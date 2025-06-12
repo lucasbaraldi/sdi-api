@@ -1,0 +1,31 @@
+{
+  "scripts": "dist/**/*.js",
+  "targets": [
+    "node22-win-x64"
+  ],  "assets": [
+    "certificate/**/*",
+    "node_modules/swagger/**/*"
+  ],
+  "output": "build/sdiApi.exe",
+  "options": [
+    "experimental-require-module"
+  ],
+  "ignore": [
+    "test/**/*",
+    "coverage/**/*",
+    "*.md",
+    "**/.git/**/*",
+    "**/node_modules/**/*.d.ts",
+    "**/node_modules/**/*.map",
+    "**/node_modules/**/*.ts",
+    "**/node_modules/**/test/**/*",
+    "**/node_modules/**/tests/**/*",
+    "**/node_modules/**/example/**/*",
+    "**/node_modules/**/examples/**/*"
+  ],
+  "publicPackages": [
+    "file-type",
+    "uint8array-extras",
+    "@isaacs/cliui"
+  ]
+}
