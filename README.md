@@ -1,172 +1,311 @@
 # SDI API
 
-API desenvolvida em NestJS para o sistema SDI.
+> API robusta desenvolvida em NestJS para o Sistema de Dados Integrados (SDI), oferecendo endpoints RESTful para gestão completa de operações comerciais.
 
-## Instalação
+## 📋 Índice
 
-Instale as dependências do projeto com o seguinte comando:
+- [Sobre o Projeto](#sobre-o-projeto)
+- [Recursos](#recursos)
+- [Pré-requisitos](#pré-requisitos)
+- [Instalação](#instalação)
+- [Configuração](#configuração)
+- [Executando a Aplicação](#executando-a-aplicação)
+- [Testes](#testes)
+- [Empacotamento](#empacotamento)
+- [Documentação da API](#documentação-da-api)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Tecnologias](#tecnologias)
+- [Troubleshooting](#troubleshooting)
 
-```bash
-npm install
+## 📖 Sobre o Projeto
+
+A SDI API é uma aplicação backend desenvolvida para gerenciar operações comerciais de forma integrada, incluindo:
+
+- **Gestão de Pedidos**: Criação, consulta e processamento de pedidos
+- **Controle de Estoque**: Movimentações e consultas de produtos
+- **Gestão de Clientes**: CRUD completo de informações de clientes
+- **Sistema de Comandas**: Controle de comandas para estabelecimentos
+- **Tabelas de Preços**: Gerenciamento de preços por cliente/produto
+- **Integração com Firebird**: Conexão nativa com banco de dados Firebird
+
+## ✨ Recursos
+
+- 🚀 **Alta Performance** - Arquitetura otimizada com NestJS
+- 🔒 **Segurança** - HTTPS obrigatório com certificados SSL
+- 📊 **Documentação Automática** - Swagger/OpenAPI integrado
+- 🗃️ **Banco Firebird** - Integração nativa com charset ISO8859_1
+- 📦 **Executável Standalone** - Geração de .exe para Windows
+- 🛡️ **Tratamento de Erros** - Sistema robusto de captura e logging
+- 🧹 **Sanitização de Dados** - Prevenção automática de erros de charset
+
+## 📋 Pré-requisitos
+
+- **Node.js** 18+ 
+- **NPM** 8+
+- **Firebird** 2.5+ (com banco configurado)
+- **Windows** (para executável .exe)
+- **Certificados SSL** (key.pem e cert.pem)
+
+## 🚀 Instalação
+
+1. **Clone o repositório**:
+   ```bash
+   git clone [url-do-repositorio]
+   cd sdi-api
+   ```
+
+2. **Instale as dependências**:
+   ```bash
+   npm install
+   ```
+
+3. **Configure o ambiente** (ver seção [Configuração](#configuração))
+
+## ⚙️ Configuração
+
+### Arquivo DBSDI.INI
+Crie o arquivo `DBSDI.INI` na raiz do projeto:
+```ini
+[INICIALIZACAO]
+CAMINHO_GDB=C:\Caminho\Para\Banco\
+NOME_GDB=BANCO.FDB
+USER_NAME=SYSDBA
+PASSWORD=masterkey
 ```
 
-## Executando a Aplicação
+### Certificados SSL
+Coloque os certificados na pasta `certificate/`:
+- `certificate/key.pem` - Chave privada
+- `certificate/cert.pem` - Certificado público
 
-Para executar a aplicação, você pode usar os seguintes comandos:
+### Variáveis de Ambiente
+Crie um arquivo `.env` (opcional):
+```env
+PORT=3000
+```
+
+## 🔧 Executando a Aplicação
+
+### Desenvolvimento
 
 ```bash
-# Modo de desenvolvimento
-npm run start
-
-# Modo de observação
+# Modo de desenvolvimento com hot-reload
 npm run start:dev
 
-# Modo de produção
+# Modo padrão
+npm run start
+
+# Modo debug
+npm run start:debug
+```
+
+A aplicação estará disponível em `https://localhost:3000`
+
+### Produção
+
+```bash
+# Build e execução
+npm run build
 npm run start:prod
 ```
 
-## Testes
-
-Execute os testes com os seguintes comandos:
+## 🧪 Testes
 
 ```bash
 # Testes unitários
 npm run test
 
-# Testes e2e
+# Testes em modo watch
+npm run test:watch
+
+# Testes end-to-end
 npm run test:e2e
 
 # Cobertura de testes
 npm run test:cov
 ```
 
-## Gerando Executável para Windows
-
-Para gerar um executável (.exe) para Windows com versionamento automático, use o comando:
+## 📋 Code Quality
 
 ```bash
+# Verificar código com ESLint
+npm run lint
+
+# Formatar código com Prettier
+npm run format
+```
+
+## 📦 Empacotamento
+
+A API pode ser empacotada como um executável standalone para Windows usando `@yao-pkg/pkg`.
+
+### 🚀 Comando Principal
+
+```bash
+# Build completo + executável + pacote ZIP
 npm run build:release
 ```
 
-Este comando irá:
-
-- Compilar o TypeScript para JavaScript
-- Empacotar a aplicação usando yao/pkg com compressão Brotli
-- Gerar um executável `sdiApi_V_X.X.X.exe` (onde X.X.X é a versão do package.json)
-- Criar um arquivo ZIP `sdiApi_V_X.X.X.zip` com o executável e arquivos necessários
-
-### Comandos Relacionados
+### ⚙️ Comandos Específicos
 
 ```bash
-# Apenas compilar o projeto
+# 1. Build do TypeScript
 npm run build
 
-# Apenas gerar o executável (após build)
+# 2. Gerar executável (após build)
 npm run pkg
 
-# Apenas criar o ZIP (após pkg)
+# 3. Criar pacote ZIP (após executável)
 npm run release
 
-# Versão completa com todas as fotos
+# 4. Pacote com TODAS as fotos
 npm run release:full
+
+# 5. Pacote para desenvolvimento
+npm run release:dev
 ```
 
-### Arquivos Gerados
+### 📄 Arquivos Gerados
 
-O comando `npm run build:release` gera:
+| Arquivo | Descrição | Tamanho |
+|---------|-----------|---------|
+| `sdiApi_V_X.X.X.exe` | Executável comprimido (Brotli) | ~40MB |
+| `sdiApi_V_X.X.X.zip` | Pacote completo | ~30MB |
 
-- **sdiApi_V_X.X.X.exe** - Executável comprimido com Brotli (~64MB)
-- **sdiApi_V_X.X.X.zip** - Pacote completo para distribuição (~30MB)
+### 📋 Conteúdo do Pacote
 
-O ZIP contém:
+**Incluído automaticamente:**
+- ✅ Executável principal
+- ✅ Certificados SSL (`certificate/`)
+- ✅ Documentação (README.md, EMPACOTAMENTO.md)
+- ✅ Informações de versão (VERSION_INFO.json)
 
-- Executável principal
-- Certificados SSL (pasta certificate/)
-- Documentação (README.md, EMPACOTAMENTO.md)
-- Informações da versão (VERSION_INFO.json)
+**Deve ficar no mesmo diretório:**
+- 📁 `DBSDI.INI` - Configuração do banco
+- 📁 `Fotos/` - Imagens do sistema (opcional no ZIP)
 
-### Instalação no Servidor
+### 🖥️ Instalação no Servidor
 
-1. Extraia o arquivo ZIP no servidor Windows
-2. Execute o arquivo `sdiApi_V_X.X.X.exe`
-3. Certifique-se que o arquivo `DBSDI.INI` está configurado corretamente
+1. **Extraia** o arquivo ZIP no servidor Windows
+2. **Copie** `DBSDI.INI` para o mesmo diretório do executável
+3. **Copie** pasta `Fotos/` (se necessária)
+4. **Execute** `sdiApi_V_X.X.X.exe`
 
-## Usando PKG
+A aplicação iniciará em `https://[IP-DA-MAQUINA]:3000`
 
-Para compilar sua aplicação em um único executável usando PKG, siga as etapas abaixo:
+## 📖 Documentação da API
 
-1. Instale o PKG globalmente:
-
-   ```bash
-   npm install -g pkg
-   ```
-
-2. Construa a aplicação:
-
-   ```bash
-   npm run build
-   ```
-
-3. Compile com PKG:
-
-   ```bash
-   npm run pkg
-   ```
-
-4. Adicione o caminho `C:\Users\SeuNomeDeUsuario\AppData\Roaming\npm` ao final da lista de caminhos das variáveis de ambiente no PATH (substitua `SeuNomeDeUsuario` pelo seu nome de usuário).
-
-## Usando PowerShell
-
-Para alterar a política de execução para "RemoteSigned" (ou "Unrestricted" se necessário), abra o PowerShell como administrador e execute o seguinte comando:
-
-```powershell
-Set-ExecutionPolicy RemoteSigned
+### Swagger/OpenAPI
+A documentação interativa da API está disponível em:
+```
+https://localhost:3000/docs/swagger
 ```
 
-## Usando Nexe
+### Principais Endpoints
 
-Para compilar sua aplicação Node.js em um único executável usando Nexe, siga as etapas abaixo. Estas instruções incluem a instalação de todas as ferramentas necessárias e a configuração do ambiente no Windows.
+| Módulo | Endpoint Base | Descrição |
+|--------|---------------|-----------|
+| Auth | `/auth` | Autenticação e autorização |
+| Pedidos | `/orders` | Gestão de pedidos |
+| Clientes | `/clients` | CRUD de clientes |
+| Produtos | `/products` | Catálogo de produtos |
+| Estoque | `/stock` | Controle de estoque |
+| Comandas | `/comandas` | Sistema de comandas |
+| Fotos | `/photos` | Gestão de imagens |
 
-### Passos para Configurar o Ambiente
+## 🏗️ Estrutura do Projeto
 
-1. Abra o PowerShell como Administrador:
+```
+src/
+├── Auth/                 # Módulo de autenticação
+├── modules/              # Módulos de negócio
+│   ├── client/          # Gestão de clientes
+│   ├── order/           # Gestão de pedidos
+│   ├── product/         # Catálogo de produtos
+│   ├── comanda/         # Sistema de comandas
+│   └── ...
+├── firebird/            # Cliente Firebird
+├── filters/             # Filtros globais (erros)
+├── utils/              # Utilitários e helpers
+├── config/             # Configurações (Swagger, etc.)
+└── commons.ts          # Funções compartilhadas
+```
 
-   - Clique com o botão direito no ícone do PowerShell e selecione "Executar como administrador".
+## 🔧 Tecnologias
 
-2. Execute os Comandos para Configurar o Ambiente:
+### Core
+- **[NestJS](https://nestjs.com/)** - Framework Node.js
+- **[TypeScript](https://www.typescriptlang.org/)** - Linguagem principal
+- **[node-firebird](https://www.npmjs.com/package/node-firebird)** - Driver Firebird
 
-   ```powershell
-   Set-ExecutionPolicy Unrestricted -Force
-   iex ((New-Object System.Net.WebClient).DownloadString('https://boxstarter.org/bootstrapper.ps1'))
-   get-boxstarter -Force
-   Install-BoxstarterPackage https://raw.githubusercontent.com/nodejs/node/master/tools/bootstrap/windows_boxstarter -DisableReboots
-   ```
+### Empacotamento
+- **[@yao-pkg/pkg](https://github.com/yao-pkg/pkg)** - Geração de executáveis
+- **[archiver](https://www.npmjs.com/package/archiver)** - Criação de ZIPs
 
-3. Configure o npm para usar o Visual Studio e Python:
+### Qualidade de Código
+- **[ESLint](https://eslint.org/)** - Linting
+- **[Prettier](https://prettier.io/)** - Formatação
+- **[Jest](https://jestjs.io/)** - Testes
 
-   ```powershell
-   npm config set msvs_version 2022
-   npm config set python python3.8
-   ```
+### Documentação
+- **[Swagger/OpenAPI](https://swagger.io/)** - Documentação da API
+- **[class-validator](https://github.com/typestack/class-validator)** - Validação
 
-4. Instale o Nexe globalmente:
+## 🚨 Troubleshooting
 
-   ```bash
-   npm install -g nexe
-   ```
+### Problemas Comuns
 
-5. Para compilar, adicione o seguinte trecho no `package.json`:
+#### ❌ Erro de Charset/Transliteração
+```
+Cannot transliterate character between character sets
+```
+**Solução**: A API agora possui sanitização automática de dados. O charset ISO8859_1 está configurado.
 
-   ```json
-   {
-     "scripts": {
-       "nexe": "nexe dist/main.js -o ./build/sdiApi.exe -t windows-x64-20.0.0 -r \"certificate/*_/_\" --build"
-     }
-   }
-   ```
+#### ❌ Certificado SSL não encontrado
+```
+ENOENT: no such file or directory 'certificate/key.pem'
+```
+**Solução**: Certifique-se de ter os arquivos SSL na pasta `certificate/`.
 
-6. Em seguida, execute o comando:
+#### ❌ Database not found
+```
+Database not found
+```
+**Solução**: Verifique se o arquivo `DBSDI.INI` existe e está configurado corretamente.
 
-   ```bash
-   npm run nexe
-   ```
+#### ❌ Erro de conexão com Firebird
+```
+Database connection failed
+```
+**Solução**: 
+1. Verifique se o Firebird está rodando
+2. Confirme o caminho do banco no `DBSDI.INI`
+3. Teste credenciais (SYSDBA/masterkey)
+
+### Logs de Erro
+Os erros são automaticamente salvos em:
+```
+logs/errosApi/
+├── error-YYYY-MM-DD-HH-MM-SS-timestamp.json
+└── errors-YYYY-MM-DD.log
+```
+
+### Performance
+- **Timeout de requisições**: 5 minutos
+- **Conexões Firebird**: Fechadas automaticamente
+- **Tamanho do executável**: ~40MB (comprimido)
+
+---
+
+## 📝 Changelog
+
+### v2.1.0
+- ✅ Sistema de sanitização de dados
+- ✅ Filtro global de exceções
+- ✅ Charset ISO8859_1 configurado
+- ✅ Logging estruturado de erros
+- ✅ Documentação melhorada
+
+---
+
+**Desenvolvido por SDI Sistemas** 🚀

@@ -1,4 +1,4 @@
-/* eslint-disable prefer-const */
+ 
 import { Injectable } from '@nestjs/common'
 import { buscaParametro } from 'src/commons'
 
@@ -87,7 +87,7 @@ export class EstoqueService {
 
     const { cod_produto, cod_empresa, cod_usuario, quantidade } = body
 
-    // eslint-disable-next-line prefer-const
+     
     nro_doc = 'APP' + date + month + year
 
     let codigoConsumidorFinal = await new Promise((res, rej) => {

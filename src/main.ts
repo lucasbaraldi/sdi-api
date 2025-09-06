@@ -6,6 +6,7 @@ import * as fs from 'fs'
 import { ValidationPipe } from '@nestjs/common'
 import { swagger } from '@config/swagger'
 import * as os from 'os'
+import { AllExceptionsFilter } from './filters/all-exceptions.filter'
 
 config({
   path: '.env'
@@ -21,6 +22,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { httpsOptions, cors: true })
   app.enableCors()
   app.useGlobalPipes(new ValidationPipe())
+  
+  // Filtro global para capturar e logar todos os erros
+  app.useGlobalFilters(new AllExceptionsFilter())
 
   // Configurando tempo limite de requisição
   app.use((req, res, next) => {

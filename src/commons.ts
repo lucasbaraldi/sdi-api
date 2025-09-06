@@ -1,6 +1,6 @@
 import { FirebirdClient } from 'src/firebird/firebird.client'
+import { DataSanitizer } from './utils/data-sanitizer'
 
-import * as Firebird from 'node-firebird'
 import { BadRequestException, NotFoundException } from '@nestjs/common'
 
 import * as fs from 'fs'
@@ -194,4 +194,43 @@ export function formatClientFields(client: any): any {
     STATUS_CLIFORN: formatField(client.STATUS_CLIFORN),
     TIPO_PESSOA: formatField(client.TIPO_PESSOA)
   };
+}
+
+/**
+ * Sanitiza dados de pedido antes de salvar no banco
+ * Previne erros de charset e truncamento
+ */
+export function sanitizeOrderData(orderData: any): any {
+  return DataSanitizer.sanitizeObject(orderData, {
+    OBS: DataSanitizer.COMMON_RULES.OBS_RULES,
+    NOME_CLIENTE: DataSanitizer.COMMON_RULES.NOME_RULES,
+    ENDERECO_ENTREGA: DataSanitizer.COMMON_RULES.ENDERECO_RULES,
+    VLR_FRETE: DataSanitizer.COMMON_RULES.VALOR_RULES,
+    VLR_TOTAL: DataSanitizer.COMMON_RULES.VALOR_RULES,
+    COD_TRANSP: DataSanitizer.COMMON_RULES.CODIGO_RULES,
+    COD_CLIENTE: DataSanitizer.COMMON_RULES.CODIGO_RULES
+  });
+}
+
+/**
+ * Sanitiza dados genéricos baseado em regras básicas
+ */
+export function sanitizeData(data: any, rules: Record<string, any> = {}): any {
+  // Regras padrão se não especificadas
+  const defaultRules = {
+    obs: DataSanitizer.COMMON_RULES.OBS_RULES,
+    observacao: DataSanitizer.COMMON_RULES.OBS_RULES,
+    observacoes: DataSanitizer.COMMON_RULES.OBS_RULES,
+    nome: DataSanitizer.COMMON_RULES.NOME_RULES,
+    endereco: DataSanitizer.COMMON_RULES.ENDERECO_RULES,
+    email: DataSanitizer.COMMON_RULES.EMAIL_RULES,
+    telefone: DataSanitizer.COMMON_RULES.TELEFONE_RULES,
+    valor: DataSanitizer.COMMON_RULES.VALOR_RULES,
+    preco: DataSanitizer.COMMON_RULES.VALOR_RULES,
+    quantidade: DataSanitizer.COMMON_RULES.QUANTIDADE_RULES
+  };
+
+  const finalRules = { ...defaultRules, ...rules };
+  
+  return DataSanitizer.sanitizeObject(data, finalRules);
 }
