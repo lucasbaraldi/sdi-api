@@ -4,6 +4,7 @@ import { CreateOrderDto } from './dto/create-order.dto'
 import { Order } from './entities/order.entity'
 import { OrderItem } from './entities/order-item.entity'
 import { saveLog } from 'src/commons'
+import { DataSanitizer } from 'src/utils/data-sanitizer'
 
 @Injectable()
 export class OrderService {
@@ -11,6 +12,7 @@ export class OrderService {
 
   async createOrder(body: CreateOrderDto): Promise<any> {
     console.log('createOrder', body)
+    
     const {
       cod_empresa,
       id_cliente,
@@ -28,6 +30,12 @@ export class OrderService {
       nro_controle,
       itens
     } = body
+    
+    // Sanitizar apenas o campo observação para evitar problemas de charset
+    const sanitizedObs = DataSanitizer.sanitizeStringKeepAccents(obs, 300)
+    if (sanitizedObs !== obs) {
+      console.log(`OBS sanitizada: "${obs}" -> "${sanitizedObs}"`)
+    }
 
     // Verificar se o pedido já existe
     const existingOrder = await this.checkExistingOrder(
@@ -64,7 +72,7 @@ export class OrderService {
         vlr_total,
         vlr_prod,
         tipo_frete || 'S',
-        obs || '',
+        sanitizedObs || '',
         'N',
         cod_vendedor,
         nro_controle,

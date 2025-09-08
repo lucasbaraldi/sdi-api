@@ -33,28 +33,45 @@ export class DataSanitizer {
   static sanitizeStringKeepAccents(text: string | null | undefined, maxLength?: number): string | null {
     if (!text) return text as null
 
-    // Mapeamento de caracteres Unicode para ISO8859_1 equivalentes
+    // Mapeamento completo de caracteres Unicode para ISO8859_1 equivalentes
     const charMap: { [key: string]: string } = {
-      // Aspas especiais
-      '\u201c': '"', // "
-      '\u201d': '"', // "
-      '\u2018': "'", // '
-      '\u2019': "'", // '
-      '\u2013': '-', // –
-      '\u2014': '-', // —
-      '\u2026': '...',  // …
-      // Caracteres especiais comuns em textos
+      // Aspas e pontuação especial
+      '\u201c': '"', '\u201d': '"', // " "
+      '\u2018': "'", '\u2019': "'", // ' '
+      '\u2013': '-', '\u2014': '-', // – —
+      '\u2026': '...', // …
+      '\u2022': '*', '\u25e6': '-', // • ◦
+      
+      // Letras com diacríticos especiais não suportadas pelo ISO8859_1
+      '\u0117': 'e', // ė (e com ponto) ← NOSSO PROBLEMA PRINCIPAL
+      '\u0101': 'a', '\u0113': 'e', '\u012b': 'i', '\u014d': 'o', '\u016b': 'u', // macrons
+      '\u010d': 'c', '\u0161': 's', '\u017e': 'z', // carons
+      '\u0142': 'l', '\u0159': 'r', '\u010f': 'd', '\u0165': 't', '\u0148': 'n',
+      '\u0111': 'd', '\u00f8': 'o', '\u00e6': 'ae', '\u0153': 'oe', // nórdicos
+      '\u00df': 'ss', '\u00fe': 'th', '\u00f0': 'd', // germânicos
+      
+      // Símbolos monetários e comerciais
       '\u20ac': 'EUR', // €
-      '\u2122': '(TM)', // ™
-      '\u00ae': '(R)', // ®
-      '\u00a9': '(C)', // ©
-      // Emojis comuns - substituir por texto
-      '\ud83d\ude0a': ':)', // 😊
-      '\ud83d\udc4d': '(ok)', // 👍
-      '\u2764\ufe0f': '<3', // ❤️
-      // Outros caracteres problemáticos
-      '\u2022': '*', // •
-      '\u25e6': '-' // ◦
+      '\u00a3': 'GBP', // £
+      '\u20b9': 'Rs',  // ₹
+      '\u2122': '(TM)', '\u00ae': '(R)', '\u00a9': '(C)', // ™ ® ©
+      '\u2116': 'No.', // №
+      
+      // Emojis mais comuns convertidos para texto
+      '\ud83d\ude0a': ':)', '\ud83d\ude22': ':(', // 😊 😢
+      '\ud83d\udc4d': '(ok)', '\ud83d\udc4e': '(no)', // 👍 👎
+      '\u2764\ufe0f': '<3', '\ud83d\udd25': '(fire)', // ❤️ 🔥
+      '\u2705': '[OK]', '\u274c': '[X]', // ✅ ❌
+      '\u26a0\ufe0f': '(!!)', // ⚠️
+      '\ud83d\udcde': 'tel:', '\ud83d\udce7': 'email:', // 📞 📧
+      '\ud83d\ude9a': 'entrega', '\ud83d\udcb0': 'R$', // 🚚 💰
+      
+      // Outros símbolos problemáticos
+      '\u2190': '<-', '\u2192': '->', // ← →
+      '\u2191': '^', '\u2193': 'v', // ↑ ↓
+      '\u2713': 'v', '\u2717': 'x', // ✓ ✗
+      '\u25cf': '*', '\u25cb': 'o', // ● ○
+      '\u2605': '*', '\u2606': '*', // ★ ☆
     }
 
     let sanitized = text
