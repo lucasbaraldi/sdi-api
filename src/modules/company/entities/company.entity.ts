@@ -38,6 +38,9 @@ export class Company {
   fone: string
 
   @ApiProperty()
+  ddd: string
+
+  @ApiProperty()
   fax: string
 
   @ApiProperty()

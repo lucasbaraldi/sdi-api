@@ -1,10 +1,11 @@
 {
   "name": "sdi-api",
-  "version": "1.0.0",
+  "version": "2.2.0",
   "description": "",
   "author": "SDI Sistemas",
   "private": true,
   "license": "UNLICENSED",
+  "bin": "dist/main.js",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -16,33 +17,49 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "pkg": "pkg ./dist/main.js --output ./build/sdiApi.exe"
+    "build:prod": "npm run build && npm run pkg && npm run release",
+    "build:release": "npm run build && npm run pkg && npm run release",
+    "pkg": "node scripts/build-release.js",
+    "release": "node scripts/create-release.js",
+    "release:full": "node scripts/create-release.js --all-photos",
+    "release:dev": "node scripts/create-release.js --dev",
+    "pkg:debug": "npx @yao-pkg/pkg --config pkg.config.json --compress Brotli --debug --output ./build/sdiApi_V_%npm_package_version%-debug.exe dist/main.js",
+    "pkg:win": "npx @yao-pkg/pkg --config pkg.config.json --compress Brotli --targets node22-win-x64 --output ./build/sdiApi_V_%npm_package_version%-win.exe dist/main.js",
+    "pkg:linux": "npx @yao-pkg/pkg --config pkg.config.json --compress Brotli --targets node22-linux-x64 --output ./build/sdiApi_V_%npm_package_version%-linux dist/main.js",
+    "pkg:macos": "npx @yao-pkg/pkg --config pkg.config.json --compress Brotli --targets node22-macos-x64 --output ./build/sdiApi_V_%npm_package_version%-macos dist/main.js",
+    "pkg:gzip": "npx @yao-pkg/pkg --config pkg.config.json --compress GZip --output ./build/sdiApi_V_%npm_package_version%-gzip.exe dist/main.js"
   },
   "dependencies": {
-    "@nestjs/common": "^11.0.0",
-    "@nestjs/core": "^11.0.0",
+    "@godaddy/terminus": "^4.12.1",
+    "@nestjs/common": "^11.1.3",
+    "@nestjs/core": "^11.1.3",
     "@nestjs/jwt": "^11.0.0",
-    "@nestjs/platform-express": "^11.0.0",
-    "@nestjs/swagger": "^11.0.0",
-    "dotenv": "^16.0.3",
-    "jsonwebtoken": "^9.0.0",
-    "node-firebird": "^1.1.5",
+    "@nestjs/platform-express": "^11.1.3",
+    "@nestjs/swagger": "^11.2.0",
+    "@nestjs/terminus": "^11.0.0",
+    "archiver": "^7.0.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "dotenv": "^16.4.5",
+    "jsonwebtoken": "^9.0.2",
+    "node-firebird": "^1.1.8",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.0",
     "swagger": "^0.7.5"
   },
   "devDependencies": {
-    "@nestjs/cli": "^11.0.0",
-    "@nestjs/schematics": "^11.0.0",
-    "@nestjs/testing": "^11.0.0",
+    "@nestjs/cli": "^11.0.7",
+    "@nestjs/schematics": "^11.0.5",
+    "@nestjs/testing": "^11.1.3",
+    "@types/archiver": "^6.0.2",
     "@types/express": "^4.17.13",
     "@types/jest": "^29.5.14",
     "@types/node": "^20.19.27",
     "@types/supertest": "^6.0.3",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "@yao-pkg/pkg": "^6.5.1",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
@@ -54,7 +71,7 @@
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.6",
     "ts-loader": "^9.2.3",
-    "ts-node": "^10.0.0",
+    "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3"
   },
@@ -76,12 +93,27 @@
     "testEnvironment": "node"
   },
   "pkg": {
-    "scripts": "dist/**/*.js",
+    "scripts": [
+      "dist/**/*.js"
+    ],
     "targets": [
-      "node18-win-x64"
+      "node22-win-x64"
     ],
     "assets": [
-      "views/**/*"
+      "certificate/**/*",
+      "node_modules/swagger/**/*"
+    ],
+    "outputPath": "build",
+    "options": [
+      "experimental-require-module"
+    ],
+    "ignore": [
+      "test/**/*",
+      "coverage/**/*",
+      "*.md",
+      "**/.git/**/*",
+      "**/node_modules/**/*.d.ts",
+      "**/node_modules/**/*.map"
     ]
   }
 }

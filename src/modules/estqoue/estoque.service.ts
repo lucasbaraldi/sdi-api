@@ -11,33 +11,68 @@ export class EstoqueService {
     const date = new Date()
     const currentYear = date.getFullYear()
     const currentMonth = date.getMonth() + 1
-    return this.firebirdClient.runQuery({
-      query: `
-      select cod_empresa, cod_produto, saldo_final, ano_ref, mes_ref 
-        from saldo_produtos 
-        where ano_ref = ${currentYear} 
-            and mes_ref = ${currentMonth}
-        order by cod_produto, cod_empresa
-      `,
-      params: []
+
+    return new Promise((resolve, reject) => {
+      this.firebirdClient.runQuery({
+        query: `
+        SELECT
+          cod_empresa,
+          cod_produto,
+          saldo_final + COALESCE(saldo_final2, 0) AS saldo_final,
+          ano_ref,
+          mes_ref
+        FROM
+            saldo_produtos
+        WHERE
+            ano_ref = ${currentYear}
+            AND mes_ref = ${currentMonth}
+        ORDER BY
+            cod_produto,
+            cod_empresa
+        `,
+        params: [],
+        buffer: (result: any, err: any) => {
+          if (err) {
+            reject(err)
+          } else {
+            result.forEach(r => {
+              r.SALDO_FINAL = (
+                Math.floor(parseFloat(r.SALDO_FINAL) * 1000) / 1000
+              ).toFixed(3)
+            })
+            resolve(result)
+          }
+        }
+      })
     })
   }
+
   saldoProduto(cod_produto: number): any {
     const date = new Date()
     const currentYear = date.getFullYear()
     const currentMonth = date.getMonth() + 1
     return this.firebirdClient.runQuery({
       query: `
-      select cod_empresa, cod_produto, saldo_final, ano_ref, mes_ref 
-        from saldo_produtos 
-        where ano_ref = ${currentYear} 
-            and mes_ref = ${currentMonth}
+              SELECT
+          cod_empresa,
+          cod_produto,
+          saldo_final + COALESCE(saldo_final2, 0) AS saldo_final,
+          ano_ref,
+          mes_ref
+        FROM
+            saldo_produtos
+        WHERE
+            ano_ref = ${currentYear}
+            AND mes_ref = ${currentMonth}
             and cod_produto = ${cod_produto}
-        order by cod_produto, cod_empresa
+        ORDER BY
+            cod_produto,
+            cod_empresa
       `,
       params: []
     })
   }
+
   async movtoEstoque(body: any) {
     const date_ob = new Date()
     const date = ('0' + date_ob.getDate()).slice(-2)
@@ -71,13 +106,13 @@ export class EstoqueService {
     const seq_dia = await new Promise((resolve, reject) => {
       this.firebirdClient.runQuery({
         query: `
-            SELECT MAX(SEQ_DIA) AS CONTADOR 
-            FROM MOVTO_ESTOQUE 
-            WHERE COD_EMPRESA = ${cod_empresa} AND 
-                TIPO_CONTROL = 'Q' AND 
-                COD_PRODUTO = ${cod_produto} AND 
-                ANO_REF = ${year} AND 
-                MES_REF = ${month} AND 
+            SELECT MAX(SEQ_DIA) AS CONTADOR
+            FROM MOVTO_ESTOQUE
+            WHERE COD_EMPRESA = ${cod_empresa} AND
+                TIPO_CONTROL = 'Q' AND
+                COD_PRODUTO = ${cod_produto} AND
+                ANO_REF = ${year} AND
+                MES_REF = ${month} AND
                 DIA_REF = ${date}
           `,
         params: [],
@@ -100,9 +135,9 @@ export class EstoqueService {
         query: `
             select custo_atual
             from SALDO_PRODUTOS
-            where ano_ref = ${year} and  
-                mes_ref = ${month} and 
-                cod_produto = ${cod_produto} and 
+            where ano_ref = ${year} and
+                mes_ref = ${month} and
+                cod_produto = ${cod_produto} and
                 cod_empresa = ${cod_empresa}
           `,
         params: [],
@@ -124,11 +159,11 @@ export class EstoqueService {
     await new Promise((resolve, reject) => {
       this.firebirdClient.runQuery({
         query: `
-          select saldo_final 
-          from saldo_produtos 
-          where ano_ref = ${year} and  
-                mes_ref = ${month} and 
-                cod_produto = ${cod_produto} and 
+          select saldo_final
+          from saldo_produtos
+          where ano_ref = ${year} and
+                mes_ref = ${month} and
+                cod_produto = ${cod_produto} and
                 cod_empresa = ${cod_empresa}
           `,
         params: [],
@@ -163,23 +198,23 @@ export class EstoqueService {
       this.firebirdClient.runQuery({
         query: `
         INSERT INTO MOVTO_ESTOQUE (
-        COD_EMPRESA, 
-        COD_PRODUTO, 
-        ANO_REF, 
-        MES_REF, 
-        DIA_REF, 
-        SEQ_DIA, 
-        NRO_DOC, 
-        NRO_NF, 
-        SEQ_NF, 
-        QTD_MOV, 
-        DT_LCTO, 
-        VLR_LCTO, 
-        VLR_CUSTO, 
-        TIPO_OPEREST, 
-        TIPO_CONTROL, 
-        COD_OPEREST, 
-        COD_CLIENTE) 
+        COD_EMPRESA,
+        COD_PRODUTO,
+        ANO_REF,
+        MES_REF,
+        DIA_REF,
+        SEQ_DIA,
+        NRO_DOC,
+        NRO_NF,
+        SEQ_NF,
+        QTD_MOV,
+        DT_LCTO,
+        VLR_LCTO,
+        VLR_CUSTO,
+        TIPO_OPEREST,
+        TIPO_CONTROL,
+        COD_OPEREST,
+        COD_CLIENTE)
         VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `,
         params: [
@@ -213,12 +248,12 @@ export class EstoqueService {
     const saldo_final: number = await new Promise((resolve, reject) => {
       this.firebirdClient.runQuery({
         query: `
-            SELECT saldo_final 
-            FROM saldo_produtos  
-            WHERE COD_EMPRESA = ${cod_empresa} AND 
-                    COD_PRODUTO = ${cod_produto} AND 
-                    ANO_REF = ${year} AND 
-                    MES_REF = ${month}  
+            SELECT saldo_final
+            FROM saldo_produtos
+            WHERE COD_EMPRESA = ${cod_empresa} AND
+                    COD_PRODUTO = ${cod_produto} AND
+                    ANO_REF = ${year} AND
+                    MES_REF = ${month}
             `,
         params: [],
         buffer: (result: any, err: any) => {

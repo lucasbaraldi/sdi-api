@@ -25,14 +25,13 @@
     "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_", "ignoreRestSiblings": true }],
     "@typescript-eslint/no-empty-function": "off",
-
     "no-var": "warn",
     "prefer-const": "warn",
     "no-useless-catch": "warn",
     "prettier/prettier": "error",
     "no-unused-vars": "off",
-    "no-use-before-define": "warn",
+    "no-use-before-define": "off",
     "import/prefer-default-export": "off",
-    "no-empty-function": "off"
+    "eslintno-useless-catch": "off"
   }
 }

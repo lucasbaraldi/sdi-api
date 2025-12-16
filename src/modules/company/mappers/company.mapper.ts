@@ -15,6 +15,7 @@ export class CompanyMapper {
       cnpj: data.CNPJ ? data.CNPJ.trim() : '',
       inscr_estadual: data.INSCR_ESTADUAL ? data.INSCR_ESTADUAL.trim() : '',
       fone: data.FONE ? data.FONE.trim() : '',
+      ddd: data.DDD ? data.DDD.trim() : '',
       fax: data.FAX ? data.FAX.trim() : '',
       email: data.EMAIL ? data.EMAIL.trim() : '',
       cod_sistema: data.COD_SISTEMA
