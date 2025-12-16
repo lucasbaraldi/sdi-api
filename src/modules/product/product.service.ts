@@ -7,7 +7,7 @@ export class ProductService {
   constructor(private readonly firebirdClient: FirebirdClient) {}
 
   async produtosConsulta(cod_empresa: number): Promise<any> {
-    const separaProdutos = await new Promise((res, rej) => {
+    const separaProdutos = await new Promise((res, _rej) => {
       buscaParametro(
         this.firebirdClient,
         'GER_SEPARAR_PRODUTOS_EMPRESA',

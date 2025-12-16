@@ -60,8 +60,7 @@ export class PriceTableService {
 
     const dataAtual = month + '/' + date + '/' + year
 
-    const { cod_produto, cod_emresa, seq_tabela, cod_usuario, preco_venda } =
-      body
+    const { cod_produto, seq_tabela, preco_venda } = body
 
     const result = await new Promise((resolve, reject) => {
       return this.firebirdClient.runQuery({

@@ -1,7 +1,10 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { EstoqueService } from './estoque.service'
 import { AuthGuard } from 'src/middlewares/auth.guard'
 
+@ApiTags('Estoque')
+@ApiBearerAuth('access-token')
 @Controller()
 export class EstoqueController {
   constructor(private readonly estoqueService: EstoqueService) {}

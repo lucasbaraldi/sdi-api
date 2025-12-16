@@ -1,8 +1,12 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ProductService } from './product.service'
 
 import { AuthGuard } from 'src/middlewares/auth.guard'
 
+@ApiTags('Product')
+@ApiBearerAuth('access-token')
 @Controller('product')
 export class ProductController {
   constructor(private readonly ProductService: ProductService) {}

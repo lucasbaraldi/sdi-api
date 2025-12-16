@@ -36,7 +36,7 @@ export class FirebirdClient {
   async runQuery({ query, params, buffer }: RunQueryInterface) {
     if (!this.options.database) throw new Error('Database not found')
 
-    let resultQuery = await new Promise((resolve, reject) => {
+    const resultQuery = await new Promise((resolve, _reject) => {
       this.firebird.attach(this.options, (err: any, db: any) => {
         if (err) throw err
 
@@ -56,30 +56,24 @@ export class FirebirdClient {
   }
 
   async readIni() {
-    try {
-      let caminhoGdb = ''
-      let nomeGdb = ''
-      let fileStream = fs.createReadStream('DBSDI.INI')
+    let caminhoGdb = ''
+    let nomeGdb = ''
+    const fileStream = fs.createReadStream('DBSDI.INI')
 
-      let rl = readline.createInterface({
-        input: fileStream,
-        crlfDelay: Infinity
-      })
+    const rl = readline.createInterface({
+      input: fileStream,
+      crlfDelay: Infinity
+    })
 
-      for await (let line of rl) {
-        // Each line in input.txt will be successively available here as `line`.
-        //console.log(`Line from file: ${line}`)
-        if (line.substring(0, 1) != ';') {
-          if (line.substring(0, line.indexOf('=')) == 'NOME_GDB') {
-            nomeGdb = line.substring(line.indexOf('=') + 1)
-          } else if (line.substring(0, line.indexOf('=')) == 'CAMINHO_GDB') {
-            caminhoGdb = line.substring(line.indexOf('=') + 1)
-          }
+    for await (const line of rl) {
+      if (line.substring(0, 1) != ';') {
+        if (line.substring(0, line.indexOf('=')) == 'NOME_GDB') {
+          nomeGdb = line.substring(line.indexOf('=') + 1)
+        } else if (line.substring(0, line.indexOf('=')) == 'CAMINHO_GDB') {
+          caminhoGdb = line.substring(line.indexOf('=') + 1)
         }
       }
-      return caminhoGdb + nomeGdb
-    } catch (error) {
-      throw error
     }
+    return caminhoGdb + nomeGdb
   }
 }

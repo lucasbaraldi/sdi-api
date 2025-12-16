@@ -39,33 +39,30 @@ export class EstoqueService {
     })
   }
   async movtoEstoque(body: any) {
-    let date_ob = new Date()
-    let date = ('0' + date_ob.getDate()).slice(-2)
-    let month = ('0' + (date_ob.getMonth() + 1)).slice(-2)
-    let year = date_ob.getFullYear()
+    const date_ob = new Date()
+    const date = ('0' + date_ob.getDate()).slice(-2)
+    const month = ('0' + (date_ob.getMonth() + 1)).slice(-2)
+    const year = date_ob.getFullYear()
 
     const dataAtual = month + '/' + date + '/' + year
 
-    let nro_doc
-    let vlr_lcto = 0.0
+    const { cod_produto, cod_empresa, quantidade } = body
 
-    const { cod_produto, cod_empresa, cod_usuario, quantidade } = body
+    const nro_doc = 'APP' + date + month + year
 
-    nro_doc = 'APP' + date + month + year
-
-    let codigoConsumidorFinal = await new Promise((res, rej) => {
+    const codigoConsumidorFinal = await new Promise((res, _rej) => {
       buscaParametro(this.firebirdClient, 'CONSUMIDORFINAL', result => {
         res(result)
       })
     })
 
-    let cod_operEstSaida = await new Promise((res, rej) => {
+    const cod_operEstSaida = await new Promise((res, _rej) => {
       buscaParametro(this.firebirdClient, 'COD_SAIDA_EST_BALANCO', result => {
         res(result)
       })
     })
 
-    let cod_operEstEntrada = await new Promise((res, rej) => {
+    const cod_operEstEntrada = await new Promise((res, _rej) => {
       buscaParametro(this.firebirdClient, 'COD_ENTRA_EST_BALANCO', result => {
         res(result)
       })
@@ -197,7 +194,7 @@ export class EstoqueService {
           0,
           qtd_movto,
           dataAtual,
-          (vlr_lcto = qtd_movto * vlr_custo),
+          qtd_movto * vlr_custo,
           vlr_custo,
           tipo_operEst,
           'Q',

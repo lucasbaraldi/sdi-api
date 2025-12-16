@@ -8,7 +8,7 @@ export class ClientService {
   constructor(private readonly firebirdClient: FirebirdClient) {}
 
   async getAllClients(cod_empresa) {
-    const separaClientes = await new Promise((res, rej) => {
+    const separaClientes = await new Promise((res, _rej) => {
       buscaParametro(
         this.firebirdClient,
         'GER_SEPARAR_PESSOAS_EMPRESA',
@@ -56,7 +56,7 @@ export class ClientService {
     })
   }
   async getOneClient(cod_empresa: number, cod_cliente: number) {
-    const separaClientes = await new Promise((res, rej) => {
+    const separaClientes = await new Promise((res, _rej) => {
       buscaParametro(
         this.firebirdClient,
         'GER_SEPARAR_PESSOAS_EMPRESA',

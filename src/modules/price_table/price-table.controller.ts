@@ -1,8 +1,12 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { PriceTableService } from './price-table.service'
 
 import { AuthGuard } from 'src/middlewares/auth.guard'
 
+@ApiTags('Price Table')
+@ApiBearerAuth('access-token')
 @Controller('priceTable')
 export class PriceTableController {
   constructor(private readonly PriceTableService: PriceTableService) {}

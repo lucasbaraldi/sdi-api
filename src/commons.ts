@@ -1,7 +1,5 @@
 import { FirebirdClient } from 'src/firebird/firebird.client'
 
-import * as Firebird from 'node-firebird'
-
 export async function buscaParametro(
   firebirdClient: FirebirdClient,
   nomeParametro: string,

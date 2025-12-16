@@ -1,6 +1,8 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 import { ComandaService } from './comanda.service'
 
+@ApiTags('Comanda')
 @Controller('comanda')
 export class ComandaController {
   constructor(private readonly comandaService: ComandaService) {}

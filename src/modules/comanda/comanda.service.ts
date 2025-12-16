@@ -48,7 +48,7 @@ export class ComandaService {
     })
   }
   async clientes(cod_empresa: number): Promise<any> {
-    const separaClientes = await new Promise((res, rej) => {
+    const separaClientes = await new Promise((res, _rej) => {
       buscaParametro(
         this.firebirdClient,
         'GER_SEPARAR_PESSOAS_EMPRESA',
@@ -198,7 +198,7 @@ export class ComandaService {
 
   async comandas(body: any) {
     let cliente
-    const obsDescricao = await new Promise((res, rej) => {
+    const obsDescricao = await new Promise((res, _rej) => {
       buscaParametro(
         this.firebirdClient,
         'BAR_PEDIDO_ITEM_OBS_NA_DESCRICAO',
@@ -207,14 +207,12 @@ export class ComandaService {
     })
     console.log('obsDescricao: ', obsDescricao)
 
-    const codigoConsumidorFinal = await new Promise((res, rej) => {
+    const codigoConsumidorFinal = await new Promise((res, _rej) => {
       buscaParametro(this.firebirdClient, 'CONSUMIDORFINAL', result => {
         res(result)
       })
     })
     console.log('codigoConsumidorFinal: ', codigoConsumidorFinal)
-
-    let observacaoGeral, observacaoItem
 
     const {
       dt_emissao,
@@ -227,7 +225,6 @@ export class ComandaService {
       vlr_prod,
       tipo_frete,
       obs,
-      status,
       email,
       cod_vendedor,
       nro_controle,
