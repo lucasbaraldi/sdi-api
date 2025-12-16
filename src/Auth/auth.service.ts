@@ -27,10 +27,12 @@ interface JwtPayload {
 export class AuthService {
   private readonly accessTokenDuration: string
   private readonly refreshTokenDuration: string
+  private readonly jwtSecret: jwt.Secret
 
   constructor(private readonly firebirdClient: FirebirdClient) {
-    this.accessTokenDuration = process.env.ACCESS_TOKEN_DURATION
-    this.refreshTokenDuration = process.env.REFRESH_TOKEN_DURATION
+    this.accessTokenDuration = process.env.ACCESS_TOKEN_DURATION || '1h'
+    this.refreshTokenDuration = process.env.REFRESH_TOKEN_DURATION || '7d'
+    this.jwtSecret = process.env.SECRET || 'default-secret-key'
   }
 
   async login(body: any, @Res() res: Response): Promise<any> {
@@ -66,9 +68,9 @@ export class AuthService {
           id: vendedor['COD_VENDEDOR'],
           nome: vendedor['USUARIO_APP']
         },
-        process.env.SECRET,
+        this.jwtSecret,
         {
-          expiresIn: this.accessTokenDuration
+          expiresIn: this.accessTokenDuration as jwt.SignOptions['expiresIn']
         }
       )
 
@@ -77,9 +79,9 @@ export class AuthService {
           id: vendedor['COD_VENDEDOR'],
           nome: vendedor['USUARIO_APP']
         },
-        process.env.SECRET,
+        this.jwtSecret,
         {
-          expiresIn: this.refreshTokenDuration
+          expiresIn: this.refreshTokenDuration as jwt.SignOptions['expiresIn']
         }
       )
 
@@ -126,7 +128,7 @@ export class AuthService {
     try {
       const decoded: JwtPayload = jwt.verify(
         refreshToken,
-        process.env.SECRET
+        this.jwtSecret
       ) as JwtPayload
 
       const vendedor = await buscaVendedor(this.firebirdClient, decoded.nome)
@@ -151,9 +153,9 @@ export class AuthService {
           id: vendedor['COD_VENDEDOR'],
           nome: vendedor['USUARIO_APP']
         },
-        process.env.SECRET,
+        this.jwtSecret,
         {
-          expiresIn: this.accessTokenDuration
+          expiresIn: this.accessTokenDuration as jwt.SignOptions['expiresIn']
         }
       )
 
@@ -162,9 +164,9 @@ export class AuthService {
           id: vendedor['COD_VENDEDOR'],
           nome: vendedor['USUARIO_APP']
         },
-        process.env.SECRET,
+        this.jwtSecret,
         {
-          expiresIn: this.refreshTokenDuration
+          expiresIn: this.refreshTokenDuration as jwt.SignOptions['expiresIn']
         }
       )
 
