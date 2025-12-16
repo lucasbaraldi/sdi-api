@@ -10,6 +10,7 @@ import { ProductModule } from '@modules/product/product.module'
 import { PriceTableModule } from '@modules/price_table/price-table.module'
 import { ClientModule } from '@modules/client/client.module'
 import { CompanyModule } from '@modules/company/company.module'
+import { SwaggerModule } from '@nestjs/swagger'
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { CompanyModule } from '@modules/company/company.module'
     ProductModule,
     PriceTableModule,
     ClientModule,
-    CompanyModule
+    CompanyModule,
+    SwaggerModule
   ],
   controllers: [AppController],
   providers: []
