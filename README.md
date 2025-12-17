@@ -4,9 +4,10 @@
 
 ## 📥 Download
 
-[![Latest Release](https://img.shields.io/github/v/release/sdisistemas/sdi-api?label=Download&style=for-the-badge)](https://github.com/sdisistemas/sdi-api/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/lucasbaraldi/sdi-api?label=Download&style=for-the-badge)](https://github.com/lucasbaraldi/sdi-api/releases/latest)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/lucasbaraldi/sdi-api/build-release.yml?branch=main&style=for-the-badge&label=Build)](https://github.com/lucasbaraldi/sdi-api/actions)
 
-**[⬇️ Baixar última versão (.exe)](https://github.com/sdisistemas/sdi-api/releases/latest)**
+**[⬇️ Baixar última versão (.exe)](https://github.com/lucasbaraldi/sdi-api/releases/latest)**
 
 > O executável é gerado automaticamente via GitHub Actions quando um PR é mergeado na branch `main`.
 
@@ -21,6 +22,7 @@
 - [Executando a Aplicação](#executando-a-aplicação)
 - [Testes](#testes)
 - [Empacotamento](#empacotamento)
+- [CI/CD](#cicd)
 - [Documentação da API](#documentação-da-api)
 - [Estrutura do Projeto](#estrutura-do-projeto)
 - [Tecnologias](#tecnologias)
@@ -202,6 +204,40 @@ npm run release:dev
 
 A aplicação iniciará em `https://[IP-DA-MAQUINA]:3000`
 
+## 🔄 CI/CD
+
+O projeto utiliza **GitHub Actions** para automação de build e release.
+
+### Fluxo de Trabalho
+
+```
+dev (desenvolvimento)
+  │
+  └──► PR para main
+         │
+         └──► Merge ──► GitHub Actions
+                           │
+                           ├── Build NestJS
+                           ├── Gera .exe com @yao-pkg/pkg
+                           ├── Cria Release no GitHub
+                           └── Disponibiliza download
+```
+
+### Branches
+
+| Branch | Propósito |
+|--------|-----------|
+| `main` | Produção - triggers de release |
+| `dev` | Desenvolvimento ativo |
+
+### Releases Automáticas
+
+Quando um PR é mergeado na `main`:
+1. O workflow compila o projeto
+2. Gera o executável `.exe`
+3. Cria uma Release com notas automáticas
+4. Disponibiliza o download
+
 ## 📖 Documentação da API
 
 ### Swagger/OpenAPI
@@ -307,6 +343,16 @@ logs/errosApi/
 ---
 
 ## 📝 Changelog
+
+### v2.3.0
+- ✅ GitHub Actions para build automático do .exe
+- ✅ Release automática com notas de versão
+- ✅ Badge de status do build no README
+- ✅ Branch `dev` para desenvolvimento
+
+### v2.2.0
+- ✅ Melhorias de performance
+- ✅ Correções de bugs
 
 ### v2.1.0
 - ✅ Sistema de sanitização de dados
