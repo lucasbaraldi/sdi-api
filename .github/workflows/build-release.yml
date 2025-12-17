@@ -1,0 +1,189 @@
+# GitHub Actions Workflow para Build e Release da SDI API
+# Este workflow é executado quando um PR é mergeado na branch main
+# Gera um executável .exe usando @yao-pkg/pkg e cria uma release no GitHub
+
+name: Build and Release
+
+on:
+  # Executa quando há push na main (após merge de PR)
+  push:
+    branches:
+      - main
+    # Ignora mudanças apenas em arquivos de documentação
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+
+  # Permite execução manual
+  workflow_dispatch:
+
+# Permissões necessárias para criar releases
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Executable
+    runs-on: windows-latest
+
+    steps:
+      # 1. Checkout do código
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      # 3. Instalar dependências
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Build do NestJS
+      - name: Build NestJS application
+        run: npm run build
+
+      # 5. Criar diretório de build
+      - name: Create build directory
+        run: New-Item -ItemType Directory -Force -Path build
+        shell: pwsh
+
+      # 6. Empacotar com @yao-pkg/pkg
+      - name: Package executable
+        run: |
+          npx @yao-pkg/pkg --config pkg.config.json --compress Brotli --output ./build/sdiApi.exe dist/main.js
+        shell: pwsh
+
+      # 7. Verificar se o executável foi criado
+      - name: Verify executable
+        run: |
+          if (Test-Path "./build/sdiApi.exe") {
+            $size = (Get-Item "./build/sdiApi.exe").Length / 1MB
+            Write-Host "Executable created successfully! Size: $([math]::Round($size, 2)) MB"
+          } else {
+            Write-Error "Executable not found!"
+            exit 1
+          }
+        shell: pwsh
+
+      # 8. Obter versão do package.json
+      - name: Get version
+        id: version
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          echo "Version: $version"
+        shell: pwsh
+
+      # 9. Criar arquivo de informações da versão
+      - name: Create version info
+        run: |
+          $versionInfo = @{
+            name = "SDI API"
+            version = "${{ steps.version.outputs.VERSION }}"
+            buildDate = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
+            commit = "${{ github.sha }}"
+            branch = "${{ github.ref_name }}"
+            buildNumber = "${{ github.run_number }}"
+          }
+          $versionInfo | ConvertTo-Json | Out-File -FilePath "./build/VERSION_INFO.json" -Encoding UTF8
+        shell: pwsh
+
+      # 10. Renomear executável com versão
+      - name: Rename executable with version
+        run: |
+          $version = "${{ steps.version.outputs.VERSION }}"
+          Move-Item "./build/sdiApi.exe" "./build/sdiApi_v$version.exe"
+        shell: pwsh
+
+      # 11. Upload artifact (para debug/download)
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdiApi-${{ steps.version.outputs.VERSION }}
+          path: |
+            build/sdiApi_v${{ steps.version.outputs.VERSION }}.exe
+            build/VERSION_INFO.json
+          retention-days: 7
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout (necessário para acessar package.json)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Obter versão
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      # 3. Download do artifact
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sdiApi-${{ steps.version.outputs.VERSION }}
+          path: build/
+
+      # 4. Listar arquivos baixados
+      - name: List downloaded files
+        run: ls -la build/
+
+      # 5. Deletar releases antigas (manter apenas a última)
+      - name: Delete old releases
+        uses: dev-drprasad/delete-older-releases@v0.3.4
+        with:
+          keep_latest: 1
+          delete_tags: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 6. Criar nova release
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          name: SDI API v${{ steps.version.outputs.VERSION }}
+          body: |
+            ## SDI API v${{ steps.version.outputs.VERSION }}
+
+            ### Informações do Build
+            - **Versão:** ${{ steps.version.outputs.VERSION }}
+            - **Commit:** ${{ github.sha }}
+            - **Build:** #${{ github.run_number }}
+            - **Data:** ${{ github.event.head_commit.timestamp }}
+
+            ### Downloads
+            - `sdiApi_v${{ steps.version.outputs.VERSION }}.exe` - Executável Windows x64
+
+            ### Como usar
+            1. Baixe o executável
+            2. Configure o arquivo `DBSDI.INI` com os dados do banco
+            3. Execute o arquivo `.exe`
+
+            ---
+            *Build automático gerado pelo GitHub Actions*
+          draft: false
+          prerelease: false
+          files: |
+            build/sdiApi_v${{ steps.version.outputs.VERSION }}.exe
+            build/VERSION_INFO.json
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 7. Limpar artifacts antigos
+      - name: Delete old artifacts
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: sdiApi-*
+          failOnError: false

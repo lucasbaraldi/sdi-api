@@ -2,8 +2,17 @@
 
 > API robusta desenvolvida em NestJS para o Sistema de Dados Integrados (SDI), oferecendo endpoints RESTful para gestão completa de operações comerciais.
 
+## 📥 Download
+
+[![Latest Release](https://img.shields.io/github/v/release/sdisistemas/sdi-api?label=Download&style=for-the-badge)](https://github.com/sdisistemas/sdi-api/releases/latest)
+
+**[⬇️ Baixar última versão (.exe)](https://github.com/sdisistemas/sdi-api/releases/latest)**
+
+> O executável é gerado automaticamente via GitHub Actions quando um PR é mergeado na branch `main`.
+
 ## 📋 Índice
 
+- [Download](#-download)
 - [Sobre o Projeto](#sobre-o-projeto)
 - [Recursos](#recursos)
 - [Pré-requisitos](#pré-requisitos)
