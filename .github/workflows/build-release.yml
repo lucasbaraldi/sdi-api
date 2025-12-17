@@ -156,12 +156,6 @@ jobs:
           body: |
             ## SDI API v${{ steps.version.outputs.VERSION }}
 
-            ### Informações do Build
-            - **Versão:** ${{ steps.version.outputs.VERSION }}
-            - **Commit:** ${{ github.sha }}
-            - **Build:** #${{ github.run_number }}
-            - **Data:** ${{ github.event.head_commit.timestamp }}
-
             ### Downloads
             - `sdiApi_v${{ steps.version.outputs.VERSION }}.exe` - Executável Windows x64
 
@@ -171,7 +165,8 @@ jobs:
             3. Execute o arquivo `.exe`
 
             ---
-            *Build automático gerado pelo GitHub Actions*
+            **Build:** #${{ github.run_number }} | **Commit:** `${{ github.sha }}`
+          generate_release_notes: true
           draft: false
           prerelease: false
           files: |
